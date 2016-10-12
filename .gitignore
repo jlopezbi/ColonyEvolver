@@ -1,0 +1,9 @@
+.DS_Store
+*.swp
+*.pyc
+coralProject alias
+__pycache__/
+Experiments/
+ideas.md
+*.blend1
+'
