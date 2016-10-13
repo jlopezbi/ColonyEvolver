@@ -12,8 +12,8 @@ class ParticleSystem(object):
 
     def __init__(self, num_particles, world):
         self.world = world
-        self.speed = 1.0
-        self.grav_factor = .5
+        self.speed = 1.0 #function of world length scale?
+        self.grav_factor = 1.0
         self.radius = .6
         self.num_particles = num_particles
         self.particles = []
