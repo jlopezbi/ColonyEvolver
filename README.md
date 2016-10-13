@@ -13,5 +13,5 @@ A box world contains particles. If a particles goes outside the boz, it is moved
 A directed graph structure grows new nodes each time a particle collides with a node.
 
 ##Images
-https://cloud.githubusercontent.com/assets/3253027/19360869/2951f144-9135-11e6-9f9d-b1107802b3a7.png
+![screen shot 2016-10-13 at 10 59 15 am](https://cloud.githubusercontent.com/assets/3253027/19360869/2951f144-9135-11e6-9f9d-b1107802b3a7.png)
 
