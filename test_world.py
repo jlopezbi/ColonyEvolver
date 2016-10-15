@@ -18,6 +18,9 @@ class BoxWorldTestCase(unittest.TestCase):
         pos_vec_out = np.array([0.0,11.0,5.0])
         self.assertFalse(self.box.in_box_bounds(pos_vec_out))
 
+    def test_show(self):
+        self.box.show()
+
 
 if __name__=="__main__":
     unittest.main(exit=False)

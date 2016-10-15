@@ -24,7 +24,7 @@ class Plant(object):
 
         first_node = Node(0,start_position)
         self.nodes = [first_node]
-        self.bmesh = mesh_helpers.init_bmesh()
+        self.mesh_object = mesh_helpers.init_mesh_object()
 
     def number_of_elements(self):
         return len(self.nodes)
@@ -62,10 +62,10 @@ class Plant(object):
         #for some reason all geometry appears to be parented together in blender
         if len(self.nodes)==1:
             self.nodes[0].show(radius=.1)
-        for node in self.nodes:
-            parent_node = self._get_parent_node(node)
-            mesh_helpers.add_line_to_bmesh(self.bmesh,node.location,parent_node.location)
-            mesh_helpers.show_bmesh(self.bmesh)
+        else:
+            for node in self.nodes:
+                parent_node = self._get_parent_node(node)
+                mesh_helpers.add_line_to_mesh_object(self.mesh_object,node.location,parent_node.location)
 
 class Node(object):
     '''

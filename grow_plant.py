@@ -1,4 +1,9 @@
-import imp
+import sys,os,imp
+import bpy
+loc = os.path.dirname(bpy.data.filepath)
+if not loc in sys.path:
+    sys.path.append(loc)
+
 import plant
 import nutrients
 import world
@@ -18,7 +23,7 @@ particle_system = nutrients.ParticleSystem(num_particles,box)
 start_pos = (0.0,0.0,0.0)
 weed = plant.Plant(start_pos)
 
-steps = 200
+steps = 100
 for i in range(steps):
     particle_system.move_particles()
     particle_system.re_spawn_escaped_particles()

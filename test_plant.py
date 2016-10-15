@@ -12,9 +12,6 @@ class PlantTestCase(unittest.TestCase):
     def setUp(self):
         self.plant = plant.Plant((0.0,0.0,0.0))
 
-    def test_setup(self):
-        pass
-    
     def test_show(self):
         self.plant.show()
 

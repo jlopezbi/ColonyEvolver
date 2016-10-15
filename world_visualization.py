@@ -9,6 +9,10 @@ import numpy as np
 import mesh_helpers as b_help
 imp.reload(b_help)
 
+def get_init_object():
+    obj = mesh_helpers.init_mesh_object("Box")
+    obj.show_bounds = True
+    return 
 
 def make_bmesh_extremity_points(lower,upper):
     '''

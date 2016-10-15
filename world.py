@@ -6,7 +6,9 @@ loc = os.path.dirname(bpy.data.filepath)
 if not loc in sys.path:
     sys.path.append(loc)
 import world_visualization as vis
+import mesh_helpers
 imp.reload(vis)
+imp.reload(mesh_helpers)
 
 class BoxWorld(object):
     """ world defines bounds for nutrients and creature """
@@ -18,10 +20,11 @@ class BoxWorld(object):
         self.lower_vertex = np.array(front_vertex)
         self.upper_vertex = np.array(back_vertex)
         self.padding = .001
+        self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
+        self.blender_object.show_bounds = True
 
     def show(self):
-        bm = vis.make_bmesh_extremity_points(self.lower_vertex,self.upper_vertex)
-        vis.show_bmesh_bounding_box(bm)
+        mesh_helpers.add_vertices_to_mesh_object(self.blender_object,[self.lower_vertex,self.upper_vertex])
 
     def get_a_spawn_location(self):
         return self._get_random_pos_on_top()
