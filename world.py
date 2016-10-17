@@ -5,9 +5,7 @@ import sys,os,imp
 loc = os.path.dirname(bpy.data.filepath)
 if not loc in sys.path:
     sys.path.append(loc)
-import world_visualization as vis
 import mesh_helpers
-imp.reload(vis)
 imp.reload(mesh_helpers)
 
 class BoxWorld(object):
@@ -19,7 +17,8 @@ class BoxWorld(object):
     def __init__(self,front_vertex,back_vertex):
         self.lower_vertex = np.array(front_vertex)
         self.upper_vertex = np.array(back_vertex)
-        self.padding = .001
+        self.padding = 1.0
+        self.offset= .001
         self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
         self.blender_object.show_bounds = True
 
@@ -37,14 +36,14 @@ class BoxWorld(object):
         '''
         x_lower,x_upper = self._shrink_range_by_padding(self._x_range())
         y_lower,y_upper = self._shrink_range_by_padding(self._y_range())
-        z = self._top_position() - self.padding
+        z = self._top_position() - self.offset
         x = random.uniform(x_lower,x_upper)
         y = random.uniform(y_lower,y_upper)
         return x,y,z
     
     def _shrink_range_by_padding(self,domain):
         upper,lower = domain
-        return upper-self.padding, lower+self.padding 
+        return upper-self.offset, lower+self.offset
 
     def _x_range(self):
         return self.upper_vertex[0],self.lower_vertex[0]
@@ -72,5 +71,21 @@ class BoxWorld(object):
         above_min = np.greater(test_vec,self.lower_vertex).all()
         below_max = np.greater(self.upper_vertex,test_vec).all()
         return above_min and below_max
+
+    def resize_to_fit(self,bbox_lower,bbox_upper,padding=None):
+        '''
+        resize world so that it offsets the box defined by
+        bbox_lower and _upper by padding amount
+        In all directions except negative z
+        '''
+        if not padding:
+            padding = self.padding
+        lower_offset = np.array((padding,padding,0.))
+        self.lower_vertex = bbox_lower - lower_offset
+        upper_offset = np.array([padding]*3)
+        self.upper_vertex = bbox_upper + upper_offset
+
+
+
 
 

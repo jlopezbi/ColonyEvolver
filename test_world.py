@@ -18,6 +18,13 @@ class BoxWorldTestCase(unittest.TestCase):
         pos_vec_out = np.array([0.0,11.0,5.0])
         self.assertFalse(self.box.in_box_bounds(pos_vec_out))
 
+    def test_resize_to_fit(self):
+        bbox_lower = np.array((-1.,-3.,0.))
+        bbox_upper = np.array((12.,4.,4.))
+        self.box.resize_to_fit(bbox_lower,bbox_upper,1.)
+        np.testing.assert_equal(self.box.lower_vertex,(-2.0,-4.0,0.))
+        np.testing.assert_equal(self.box.upper_vertex,(13.,5.,5.))
+
     def test_show(self):
         self.box.show()
 
