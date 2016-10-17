@@ -1,6 +1,7 @@
 import bpy
 import mathutils
 import imp
+import numpy as np
 import mesh_helpers
 imp.reload(mesh_helpers)
 
@@ -25,6 +26,8 @@ class Plant(object):
         first_node = Node(0,start_position)
         self.nodes = [first_node]
         self.mesh_object = mesh_helpers.init_mesh_object()
+        self.bbox_lower = np.array((0.,0.,0.)) 
+        self.bbox_upper = np.array((0.,0.,0.))
 
     def number_of_elements(self):
         return len(self.nodes)
@@ -54,6 +57,11 @@ class Plant(object):
     
     def _add_node(self,new_node):
         self.nodes.append(new_node)
+        self._update_bbox(new_node.location)
+
+    def _update_bbox(self,test_location):
+        self.bbox_lower = np.minimum(self.bbox_lower,test_location)
+        self.bbox_upper = np.maximum(self.bbox_upper,test_location)
 
     def _get_parent_node(self,node):
         return self.nodes[node.parent]
@@ -76,7 +84,8 @@ class Node(object):
 
     def __init__(self,parent,coordinates):
         self.parent = parent
-        self.location = mathutils.Vector(coordinates)
+        #self.location = mathutils.Vector(coordinates)
+        self.location = np.array(coordinates)
 
     def show(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)
