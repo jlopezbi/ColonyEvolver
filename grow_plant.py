@@ -10,6 +10,7 @@ import world
 imp.reload(plant)
 imp.reload(nutrients)
 imp.reload(world)
+#Things to consider: vary particle system gravity, see what happens
 
 side = 2.0
 height = 3.0 
