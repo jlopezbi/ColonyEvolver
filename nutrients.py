@@ -14,7 +14,8 @@ class ParticleSystem(object):
         self.world = world
         self.randomness_of_motion = 0.0  # [0, 1.0]
         #NOTE: probs should make magnitude of trend motion some multiple of particle radius
-        self.trend_motion_vec = np.array((0.0,0.0,-0.3))
+        self.trend_speed = 0.3
+        self.trend_direction = np.array((0.0,0.0,-1.0))
         self.radius = .6
         self.num_particles = num_particles
         self.particles = []
@@ -26,8 +27,7 @@ class ParticleSystem(object):
         # i.e. a ton of particles colliding in a small time frame. How to space it out?
         for i in range(self.num_particles):
             position = self.world.get_a_spawn_location()
-            self.particles.append(
-                Particle(position, self.radius, self.trend_motion_vec))
+            self.particles.append(Particle(position, self.radius ))
 
     def show_particles(self):
         for p in self.particles:
@@ -62,31 +62,27 @@ class ParticleSystem(object):
 
     def show_case_particle_motion(self,steps=10):
         init_pos = (0.,0.,0.)
-        p1 = Particle(init_pos,self.radius,self.trend_motion_vec)
+        p1 = Particle(init_pos,self.radius)
         for i in range(steps):
-            p1.move(self.randomness_of_motion)
+            p1.move(self.trend_speed,self.trend_direction,self.randomness_of_motion)
             p1.show()
 
 class Particle(object):
 
-    def __init__(self, position, radius, trend_velocity):
+    def __init__(self, position, radius ):
         self.position = np.array(position)
         self.radius = radius
-        self.trend_velocity = np.array(trend_velocity)
-
-    def _get_trend_speed(self):
-        return np.linalg.norm(self.trend_velocity)
     
     def set_position(self,new_position):
         self.position = np.array(new_position)
 
-    def move(self, randomness=0.5):
+    def move(self,magnitude,trend_direction=(0.0,0.0,-1.0), randomness=0.5):
         '''
         randomness is in range [0,1] for random brownian-like motion
         '''
-        magnitude = self._get_trend_speed() 
-        displacement_vec = self.trend_velocity*(1.-randomness) + self._get_random_vector(magnitude)*randomness
-        displacement_vec = self.trend_velocity*(1.-randomness) + self._get_random_vector(magnitude)*randomness
+        trend_velocity = np.array(trend_direction)*magnitude
+        displacement_vec = trend_velocity*(1.-randomness) + self._get_random_vector(magnitude)*randomness
+        displacement_vec = trend_velocity*(1.-randomness) + self._get_random_vector(magnitude)*randomness
         self.position += displacement_vec
 
 
@@ -114,12 +110,13 @@ class Particle(object):
     
     def _get_random_vector(self,magnitude=1.0):
         '''
+        get a randomly oriented vector with input magnitue
         '''
-        padding = .00001
         inclination = random.uniform(0, math.pi)
         azimuth = random.uniform(0, math.pi * 2.0)
         X = magnitude * math.sin(azimuth) * math.cos(inclination)
         Y = magnitude * math.sin(azimuth) * math.sin(inclination)
-        Z = magnitude * math.cos(inclination)
+        #Z = magnitude * math.cos(inclination)
+        Z = magnitude * math.cos(azimuth)
         return np.array([X, Y, Z])
 
