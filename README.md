@@ -20,3 +20,11 @@ Above: A plant-shape, or perhaps more like a coral-shape, that was grown using P
 ![screen shot 2016-10-13 at 10 59 15 am](https://cloud.githubusercontent.com/assets/3253027/19360869/2951f144-9135-11e6-9f9d-b1107802b3a7.png)
 The above is the first "plant" grown using this system. In this case new nodes were added to the plant each time a particle (sphere) collided with a pre-existing node, the 'parent' node. The new node's location was the center of the sphere.
 
+## Developer Notes
+* To run all tests: in a terminal (cd to project directory) type: 
+``` blender --background --python run_all_tests.py ```
+This ensures that any changes you make to the code or tests will appear in the unittest run.
+At the moment, the current pattern to develop this project is to have a collection of test_module.py files (or test_class.py). Each test_stuff.py file has unittest.TestCase classes that test various stuff.
+To run an individual test file and see the effect it has on the blender scene, open the script in the blender text editor, and run it.
+
+
