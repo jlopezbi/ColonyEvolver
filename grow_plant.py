@@ -22,6 +22,7 @@ num_particles = 60
 particle_system = nutrients.ParticleSystem(num_particles,box)
 particle_system.randomness_of_motion = 1.0
 particle_system.radius = 1.2
+particle_system.trend_motion_magnitude = 1.0
 
 start_pos = (0.0,0.0,0.0)
 weed = plant.Plant(start_pos)
