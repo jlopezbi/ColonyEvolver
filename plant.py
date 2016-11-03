@@ -3,7 +3,9 @@ import mathutils
 import imp
 import numpy as np
 import mesh_helpers
+import metaball_helpers
 imp.reload(mesh_helpers)
+imp.reload(metaball_helpers)
 #TODO: 
 # - clean up this module
 #probably should be a base-class for plant upon which vhkkjjarious growth behaviors are added
@@ -27,7 +29,6 @@ def get_average_vector(vectors):
     c = np.column_stack(vectors)
     return np.mean(c,axis=1)
 
-
 class Plant(object):
     """plant composed of nodes"""
     #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
@@ -41,6 +42,9 @@ class Plant(object):
         first_node = Node(None,start_position)
         self.nodes = [first_node]
         self.mesh_object = mesh_helpers.init_mesh_object()
+        obj,mball = metaball_helpers.create_metaball_obj()
+        print('created mball object!')
+        self.mball = mball
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
         #self._init_plant_shape()
@@ -59,7 +63,8 @@ class Plant(object):
     def number_of_elements(self):
         return len(self.nodes)
     
-    def grow_collided(self,particle_system):
+    def collide_with(self,particle_system):
+        #NOTE: not tested
         '''
         NOTE: this is where an important entanglement between plant
         and nutrients occurs!
@@ -109,13 +114,14 @@ class Plant(object):
             self.nodes[0].show_single(radius=.1)
         else:
             for node in self.nodes:
-                node.show(self.mesh_object)
+                node.show(self.mball,self.mesh_object)
 
 class Node(object):
     '''
     input:
-    parent = pointer to another node
+    parent = pointer to an instance of aanother node
     x,y,z = float coordinates of node
+    IDEA: node is composed of a graph_tracker, and  responder, and a shower
     '''
 
     def __init__(self,parent,coordinates):
@@ -126,7 +132,8 @@ class Node(object):
             self.parent = parent
         #self.location = mathutils.Vector(coordinates)
         self.location = np.array(coordinates)
-
+        self.radius = .08
+       
     def respond_to_collision(self,plant,position,radius):
         '''
         the function that gets called when this node gets hit by a particle
@@ -144,13 +151,10 @@ class Node(object):
 
     def _new_position_average_internode_sphere_vecs(self,plant,pos_vec):
         '''
-        NOTe: should be renamed to get average between internode 
-        and sphere position
         determine where the new node should be
         given the position of the sphere, the node it intersected
         and its distance to that node
         '''
-        #parent_node = plant.get_node(self.parent)
         parent_node = self.parent
         internode_vec = self.get_parent_internode_vec(plant)
         node_to_sphere = np.array(pos_vec)-parent_node.location
@@ -167,15 +171,30 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self,mesh_object):
+    def show(self,mball,mesh_object):
+        self.show_mball_rod(mball)
+        self.show_mesh_line(mesh_object)
+
+    def show_mball_rod(self,mball):
+        metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
+
+    def show_mesh_line(self,mesh_object):
         mesh_helpers.add_line_to_mesh_object(mesh_object,self.location,self.parent.location)
-
-
 
     def show_single(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)
 
     def spawn_child(self):
         pass
+
+def _grow_cone_position(base_vector,input_vector,radius):
+    '''
+    \  / 
+     \/
+      
+    finds a vector inside or on the cone defined by base_vector
+    and radius. If the input vector position lies outside the cone, the position
+    is clamped to the cone surface
+    '''
 
 
