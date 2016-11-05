@@ -30,6 +30,12 @@ class PlantTestCase(unittest.TestCase):
         self.plant.add_node(new_node)
         self.plant.show()
 
+    def test_translate(self):
+        new_node = plant.Node(self.plant.nodes[0],(1,1,0))
+        self.plant.add_node(new_node)
+        self.plant.show()
+        self.plant.translate((1,1,1))
+
 
     def test_updates_bbox_when_node_added(self):
         new_node = plant.Node(0,(1,1,1))    
