@@ -42,8 +42,8 @@ class Plant(object):
         first_node = Node(None,start_position)
         self.nodes = [first_node]
         self.mesh_object = mesh_helpers.init_mesh_object()
-        obj,mball = metaball_helpers.create_metaball_obj()
-        print('created mball object!')
+        mball_obj,mball = metaball_helpers.create_metaball_obj()
+        self.mball_obj = mball_obj
         self.mball = mball
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
@@ -88,6 +88,11 @@ class Plant(object):
                 particle_system.re_spawn_particle(p)
 
     def _create_spatial_tree(self):
+        '''
+        NOTE: the reliance here on mathutils.kdtree is one of the major
+        blender dependencies. However, KDTree functionality is readily available from
+        other libraries
+        '''
         spatial_tree = mathutils.kdtree.KDTree(self.number_of_elements())
         for i,node in enumerate(self.nodes):
             spatial_tree.insert(node.location,i)
@@ -115,6 +120,12 @@ class Plant(object):
         else:
             for node in self.nodes:
                 node.show(self.mball,self.mesh_object)
+
+    def translate(self,vector):
+        self.mball_obj.location = vector
+        self.mesh_object.location = vector
+        
+
 
 class Node(object):
     '''
