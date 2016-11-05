@@ -10,8 +10,8 @@ import world
 imp.reload(plant)
 imp.reload(nutrients)
 imp.reload(world)
-#Things to consider: vary particle system gravity, see what happens
 
+'''set up'''
 side = 2.0
 height = 3.0 
 front = (-side/2,-side/2,0.0)
@@ -27,11 +27,12 @@ particle_system.trend_motion_magnitude = 1.0
 start_pos = (0.0,0.0,0.0)
 weed = plant.Plant(start_pos)
 
+''' run '''
 steps = 100
 for i in range(steps):
     particle_system.move_particles()
     particle_system.re_spawn_escaped_particles()
-    weed.grow_collided(particle_system)
+    weed.collide_with(particle_system)
     box.resize_to_fit(weed.bbox_lower,weed.bbox_upper,padding=particle_system.radius*2.0)
 
 weed.show()
