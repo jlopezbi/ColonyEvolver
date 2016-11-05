@@ -22,8 +22,15 @@ class BoxWorld(object):
         self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
         self.blender_object.show_bounds = True
 
+    def set_size(self,front,back):
+        self.lower_vertex = front
+        self.upper_vertex = back
+
     def show(self):
         mesh_helpers.add_vertices_to_mesh_object(self.blender_object,[self.lower_vertex,self.upper_vertex])
+
+    def translate(self,vector):
+        self.blender_object.location = vector
 
     def get_a_spawn_location(self):
         return self._get_random_pos_on_top()
@@ -53,6 +60,14 @@ class BoxWorld(object):
 
     def _top_position(self):
         return self.upper_vertex[2]
+    
+    def front_left(self):
+        copy = np.copy(self.lower_vertex)
+        np.put(copy,0,self.upper_vertex[0])
+        return copy
+    
+    def x_dimension(self):
+        return self.upper_vertex[0] - self.lower_vertex[0]
 
     def particle_is_inside(self,particle):
         '''
