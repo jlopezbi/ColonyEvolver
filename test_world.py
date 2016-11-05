@@ -28,6 +28,9 @@ class BoxWorldTestCase(unittest.TestCase):
     def test_show(self):
         self.box.show()
 
+    def test_translate(self):
+        self.box.translate((1,1,1))
+        self.box.show()
 
 if __name__=="__main__":
     unittest.main(exit=False)
