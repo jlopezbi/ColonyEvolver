@@ -21,8 +21,9 @@ sweeper = simrunner.ParameterSweeper(randomness_of_motion,param_name)
 '''
 
 randomness_of_motion = np.arange(0.0,1.0,0.1)
+padding_size = np.arange(.1,1.0,.1)
 steps = 70
-parameter_range = randomness_of_motion
+parameter_range = padding_size
 pos_vector = np.array((0.,0.,0.))
 for p in parameter_range:
     '''set up'''
@@ -35,9 +36,10 @@ for p in parameter_range:
     num_particles = 60
     particle_system = nutrients.ParticleSystem(num_particles,box)
     # swept paremater
-    particle_system.randomness_of_motion = p
+    particle_system.randomness_of_motion = .7
     particle_system.radius = 1.2
     particle_system.trend_motion_magnitude = 1.0
+    padding_over_plant = p
 
     start_pos = (0.0,0.0,0.0)
     weed = plant.Plant(start_pos)
@@ -46,7 +48,7 @@ for p in parameter_range:
         particle_system.move_particles()
         particle_system.re_spawn_escaped_particles()
         weed.collide_with(particle_system)
-        box.resize_to_fit(weed.bbox_lower,weed.bbox_upper,padding=particle_system.radius*2.0)
+        box.resize_to_fit(weed.bbox_lower,weed.bbox_upper,padding=padding_over_plant)
     weed.show()
     box.show()
     '''Translate box and weed to edge of previous run'''
