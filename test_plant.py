@@ -72,13 +72,16 @@ class NodeTestCase(unittest.TestCase):
         vec = new_node.get_parent_internode_vec(self.plant)
         np.testing.assert_equal(vec,(1.,2.1,3.4)) 
         
-    def test_respond_to_collision(self):
+    def test_implements_respond_to_collision(self):
         position = (2.,2.,2.)
         radius = 1.
         node = plant.Node(parent=self.plant.nodes[0],coordinates=(1.,1.,1.))
         new_node = node.respond_to_collision(self.plant,position,radius)
-        self.assertIsInstance(new_node,plant.Node)
-        self.plant.show()
+        node = plant.SquiggleNode(parent = self.plant.nodes[0],coordinates=(0.0,1.0,1.0))
+        node.respond_to_collision(self.plant,position,radius)
+
+        #self.assertIsInstance(new_node,plant.Node)
+        #self.plant.show()
 
 if __name__=="__main__":
     unittest.main(exit=False)
