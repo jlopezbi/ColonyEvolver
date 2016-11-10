@@ -2,16 +2,13 @@ import bpy
 import mathutils
 import imp
 import numpy as np
+import inspect
 import mesh_helpers
+import numpy_helpers
 import metaball_helpers
+imp.reload(numpy_helpers)
 imp.reload(mesh_helpers)
 imp.reload(metaball_helpers)
-#TODO: 
-# - clean up this module
-#probably should be a base-class for plant upon which vhkkjjarious growth behaviors are added
-# - add plants that have constant branching direction
-# - plants that have different types of nodes
-# - try out a plant that has a max allowed branch angle
 
 '''
 notes for development:
@@ -21,13 +18,6 @@ custom attributes on a a bmesh vertex:
     http://blender.stackexchange.com/questions/8992/python-api-custom-properties-for-vertices-edges-faces
 '''
 
-def get_average_vector(vectors):
-    '''
-    vectors must be tuple of np.array()'s with only one dimension
-    all vectors must be same size
-    '''
-    c = np.column_stack(vectors)
-    return np.mean(c,axis=1)
 
 class Plant(object):
     """plant composed of nodes"""
@@ -39,7 +29,7 @@ class Plant(object):
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
 
-        first_node = Node(None,start_position)
+        first_node = WeightedDirectionNode(None,start_position)
         self.nodes = [first_node]
         self.mesh_object = mesh_helpers.init_mesh_object()
         mball_obj,mball = metaball_helpers.create_metaball_obj()
@@ -122,11 +112,14 @@ class Plant(object):
                 node.show(self.mball,self.mesh_object)
 
     def translate(self,vector):
+        '''
+        move the blender objects visualizing or skinning this 
+        plant. Does not update the actual coordinates of the 
+        plant nodes
+        '''
         self.mball_obj.location = vector
         self.mesh_object.location = vector
         
-
-
 class Node(object):
     '''
     input:
@@ -139,7 +132,7 @@ class Node(object):
         if not parent:
             self.parent = self
         else:
-            assert type(parent) == Node, "parent must be of type Node, instead is it of type {}".format(str(type(parent)))
+            assert type(parent) == Node or inspect.getmro(type(parent))[1] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
             self.parent = parent
         #self.location = mathutils.Vector(coordinates)
         self.location = np.array(coordinates)
@@ -147,7 +140,7 @@ class Node(object):
        
     def respond_to_collision(self,plant,position,radius):
         '''
-        the function that gets called when this node gets hit by a particle
+        Template function that gets called when this node gets hit by a particle
         dpending on the node type any number of things could happen:
             - increase a number
             - store some data
@@ -157,20 +150,9 @@ class Node(object):
             - affect all parents
             - affect all children
         '''
-        position = self._new_position_average_internode_sphere_vecs(plant,position)
-        return Node(parent=self,coordinates=position)
-
-    def _new_position_average_internode_sphere_vecs(self,plant,pos_vec):
-        '''
-        determine where the new node should be
-        given the position of the sphere, the node it intersected
-        and its distance to that node
-        '''
-        parent_node = self.parent
-        internode_vec = self.get_parent_internode_vec(plant)
-        node_to_sphere = np.array(pos_vec)-parent_node.location
-        displacement = get_average_vector((internode_vec,node_to_sphere))
-        return displacement + parent_node.location
+        return None
+        #position = self._new_position_average_internode_sphere_vecs(plant,position)
+        #return Node(parent=self,coordinates=position)
 
     def get_parent_internode_vec(self,plant):
         '''
@@ -195,8 +177,48 @@ class Node(object):
     def show_single(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)
 
-    def spawn_child(self):
-        pass
+class DumbNode(Node):
+    def respond_to_collision(self,plant,position,radius):
+        return DumbNode(parent=self,coordinates=position)
+
+class SquiggleNode(Node):
+
+    def respond_to_collision(self,plant,position,radius):
+        position = self._new_position_average_internode_sphere_vecs(plant,position)
+        return SquiggleNode(parent=self,coordinates=position)
+
+    def _new_position_average_internode_sphere_vecs(self,plant,pos_vec):
+        '''
+        determine where the new node should be
+        given the position of the sphere, the node it intersected
+        and its distance to that node
+        '''
+        parent_node = self.parent
+        internode_vec = self.get_parent_internode_vec(plant)
+        node_to_sphere = np.array(pos_vec)-parent_node.location
+        displacement = numpy_helpers.get_mean_vector((internode_vec,node_to_sphere))
+        return displacement + parent_node.location
+
+class WeightedDirectionNode(Node):
+
+    def respond_to_collision(self,plant,position,radius):
+        position = self.weighted_direction(plant,position)
+        return WeightedDirectionNode(parent=self,coordinates=position)
+
+    def weighted_direction(self,plant,position):
+        parent_node = self.parent
+        internode_vec = self.get_parent_internode_vec(plant)
+        node_to_sphere = np.array(position)-self.location
+        weights = (.95,.05)
+        displacement = numpy_helpers.get_weighted_average_vectors((internode_vec,node_to_sphere),weights)
+        return displacement + self.location
+
+class Bud(Node):
+    pass
+
+class Stem(Node):
+    pass
+
 
 def _grow_cone_position(base_vector,input_vector,radius):
     '''
