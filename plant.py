@@ -2,6 +2,7 @@ import bpy
 import mathutils
 import imp
 import numpy as np
+import math,random
 import inspect
 import mesh_helpers
 import numpy_helpers
@@ -29,7 +30,7 @@ class Plant(object):
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
 
-        first_node = WeightedDirectionNode(None,start_position)
+        first_node = Bud(None,start_position)
         self.nodes = [first_node]
         self.mesh_object = mesh_helpers.init_mesh_object()
         mball_obj,mball = metaball_helpers.create_metaball_obj()
@@ -72,9 +73,10 @@ class Plant(object):
                 pos_of_node,index,dist = collided[0]
                 #new_node = self.spawn_new_node(p.position,index,dist)
                 collided_node = self.get_node(index)
-                new_node = collided_node.respond_to_collision(self,p.position,p.radius)
-                if new_node:
-                    self.add_node(new_node)
+                new_nodes = collided_node.respond_to_collision(self,p.position,p.radius)
+                if new_nodes:
+                    for node in new_nodes:
+                        self.add_node(node)
                 particle_system.re_spawn_particle(p)
 
     def _create_spatial_tree(self):
@@ -119,7 +121,8 @@ class Plant(object):
         '''
         self.mball_obj.location = vector
         self.mesh_object.location = vector
-        
+
+''' NODES'''        
 class Node(object):
     '''
     input:
@@ -128,7 +131,7 @@ class Node(object):
     IDEA: node is composed of a graph_tracker, and  responder, and a shower
     '''
 
-    def __init__(self,parent,coordinates):
+    def __init__(self,parent,coordinates,*args):
         if not parent:
             self.parent = self
         else:
@@ -137,6 +140,10 @@ class Node(object):
         #self.location = mathutils.Vector(coordinates)
         self.location = np.array(coordinates)
         self.radius = .08
+        self._post_initialize(args)
+
+    def _post_initialize(self,args):
+        pass
        
     def respond_to_collision(self,plant,position,radius):
         '''
@@ -179,13 +186,13 @@ class Node(object):
 
 class DumbNode(Node):
     def respond_to_collision(self,plant,position,radius):
-        return DumbNode(parent=self,coordinates=position)
+        return [DumbNode(parent=self,coordinates=position)]
 
 class SquiggleNode(Node):
 
     def respond_to_collision(self,plant,position,radius):
         position = self._new_position_average_internode_sphere_vecs(plant,position)
-        return SquiggleNode(parent=self,coordinates=position)
+        return [SquiggleNode(parent=self,coordinates=position)]
 
     def _new_position_average_internode_sphere_vecs(self,plant,pos_vec):
         '''
@@ -195,7 +202,8 @@ class SquiggleNode(Node):
         '''
         parent_node = self.parent
         internode_vec = self.get_parent_internode_vec(plant)
-        node_to_sphere = np.array(pos_vec)-parent_node.location
+        #note using parent node location! this is what makes it more squiggly
+        node_to_sphere = np.array(pos_vec)-parent_node.location 
         displacement = numpy_helpers.get_mean_vector((internode_vec,node_to_sphere))
         return displacement + parent_node.location
 
@@ -203,7 +211,7 @@ class WeightedDirectionNode(Node):
 
     def respond_to_collision(self,plant,position,radius):
         position = self.weighted_direction(plant,position)
-        return WeightedDirectionNode(parent=self,coordinates=position)
+        return [WeightedDirectionNode(parent=self,coordinates=position)]
 
     def weighted_direction(self,plant,position):
         parent_node = self.parent
@@ -214,10 +222,61 @@ class WeightedDirectionNode(Node):
         return displacement + self.location
 
 class Bud(Node):
-    pass
+    def _post_initialize(self,args):
+        self.data = []
+        self.num_particles_to_grow = 10
 
-class Stem(Node):
-    pass
+    def respond_to_collision(self,plant,position,radius):
+        vec_disp = position - self.location 
+        self.data.append(vec_disp)
+        if len(self.data) >= self.num_particles_to_grow:
+            avg_disp = numpy_helpers.get_mean_vector(self.data)
+            pos = self.location + avg_disp 
+            self.data = []
+            return [BranchyNode(parent=self,coordinates=pos)]
+            #return [Bud(parent=self,coordinates=pos)]
+        else:
+            return None
+
+    def create_branches(self,plant,number):
+        internode_vec = self.get_parent_internode_vec(plant)
+
+class BranchyNode(Node):
+    def _post_initialize(self,args):
+        self.data = []
+        self.num_particles_to_grow = 1
+
+    def respond_to_collision(self,plant,position,radius):
+        vec_disp = position - self.location 
+        self.data.append(vec_disp)
+        if len(self.data) >= self.num_particles_to_grow:
+            avg_disp = numpy_helpers.get_mean_vector(self.data)
+            pos = self.location + avg_disp 
+            self.data = []
+            pos1 = self.get_branch_pos(plant)
+            #return [BranchyNode(parent=self,coordinates=pos1),BranchyNode(parent=self,coordinates=pos2)]
+            #return [Bud(parent=self,coordinates=pos1),Bud(parent=self,coordinates=pos2)]
+            return [Bud(parent=self,coordinates=pos1)]
+        else:
+            return None
+
+    def get_branch_pos(self,plant):
+        o = self.get_branch_ortho_rand(plant)
+        return self.location + o
+
+
+    def get_branch_ortho_rand(self,plant):
+        internode_vec = mathutils.Vector(self.get_parent_internode_vec(plant))
+        ortho_rand = internode_vec.orthogonal()
+        ortho_rand.normalized()
+        n = ortho_rand * internode_vec.length * 1.3
+        angle = random.uniform(0.0,math.pi*2)
+        n.rotate(self.create_rotation_quat(internode_vec,angle))
+        return n
+
+    def create_rotation_quat(self,vector,angle):
+        return mathutils.Quaternion(vector,angle)
+
 
 
 def _grow_cone_position(base_vector,input_vector,radius):
