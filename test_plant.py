@@ -25,9 +25,12 @@ class PlantTestCase(unittest.TestCase):
         self.plant = plant.Plant((0.0,0.0,0.0))
 
     def test_show(self):
-        self.plant.show()
         new_node = plant.Node(self.plant.nodes[0],(1,1,1))
+        #print(self.plant.nodes[0].vert)
+        #print(self.plant.nodes[0].location)
         self.plant.add_node(new_node)
+        #print(new_node.vert)
+        #print(new_node.location)
         self.plant.show()
 
     def test_translate(self):

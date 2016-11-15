@@ -31,14 +31,18 @@ class Plant(object):
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
 
-        first_node = Bud(None,start_position)
-        self.nodes = [first_node]
-        self.mesh_object = mesh_helpers.init_mesh_object()
+        self.mesh_grower = mesh_helpers.MeshSkeletonGrower("Skeleton","mesh")
+        #self.mesh_object = mesh_helpers.init_mesh_object()
+        self.mesh_object = None
         mball_obj,mball = metaball_helpers.create_metaball_obj()
         self.mball_obj = mball_obj
         self.mball = mball
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
+
+        first_node = Bud(None,start_position)
+        self.nodes = []
+        self.add_node(first_node)
         #self._init_plant_shape()
 
     def _init_plant_shape(self):
@@ -97,6 +101,8 @@ class Plant(object):
 
     def add_node(self,new_node):
         self.nodes.append(new_node)
+        #NOTE: Shit is getting tangled here!
+        new_node.vert = self.mesh_grower.add_vertex(new_node.location)
         self._update_bbox(new_node.location)
 
     def _update_bbox(self,test_location):
@@ -112,7 +118,8 @@ class Plant(object):
             self.nodes[0].show_single(radius=.1)
         else:
             for node in self.nodes:
-                node.show(self.mball,self.mesh_object)
+                node.show(self.mball,self.mesh_object,self.mesh_grower)
+        self.mesh_grower.finalize()
 
     def translate(self,vector):
         '''
@@ -121,7 +128,7 @@ class Plant(object):
         plant nodes
         '''
         self.mball_obj.location = vector
-        self.mesh_object.location = vector
+        #self.mesh_object.location = vector
 
 ''' NODES'''        
 class Node(object):
@@ -134,12 +141,13 @@ class Node(object):
 
     def __init__(self,parent,coordinates,*args):
         if not parent:
-            self.parent = self
+            self.parent = None
         else:
             assert type(parent) == Node or inspect.getmro(type(parent))[1] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
             self.parent = parent
         #self.location = mathutils.Vector(coordinates)
         self.location = np.array(coordinates)
+        self.vert = None #needs to be mesh_grower.add_vertex(coordinates)
         self.radius = .08
         self._post_initialize(args)
 
@@ -172,15 +180,22 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self,mball,mesh_object):
+    def show(self,mball,mesh_object,mesh_grower):
         #self.show_mball_rod(mball)
-        self.show_mesh_line(mesh_object)
+        #self.show_mesh_line(mesh_object)
+        #self.vert = mesh_grower.add_vertex(self.location)
+        if self.parent:
+            print(self.vert)
+            print(self.parent.vert)
+            mesh_grower.add_edge(self.vert,self.parent.vert)
 
     def show_mball_rod(self,mball):
         metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
 
     def show_mesh_line(self,mesh_object):
-        mesh_helpers.add_line_to_mesh_object(mesh_object,self.location,self.parent.location)
+        #self.vert = mesh_helpers.add_vertices_to_mesh(mesh_object,self.location)
+        #mesh_helpers.add_edge_to_mesh_object(mesh_object,self.vert,self.parent.vert)
+        pass
 
     def show_single(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)
@@ -234,9 +249,9 @@ class Bud(Node):
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
-            return [BranchyNode(parent=self,coordinates=pos)]
-            self.num_particles_to_grow = 3
-            #return [Bud(parent=self,coordinates=pos)]
+            #return [BranchyNode(parent=self,coordinates=pos)]
+            #self.num_particles_to_grow = 3
+            return [Bud(parent=self,coordinates=pos)]
         else:
             return None
 
