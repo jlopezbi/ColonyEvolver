@@ -11,6 +11,7 @@ imp.reload(numpy_helpers)
 imp.reload(mesh_helpers)
 imp.reload(metaball_helpers)
 
+
 '''
 notes for development:
 custom attributes on a a bmesh vertex:
@@ -172,7 +173,7 @@ class Node(object):
         return to_vec-from_vec
 
     def show(self,mball,mesh_object):
-        self.show_mball_rod(mball)
+        #self.show_mball_rod(mball)
         self.show_mesh_line(mesh_object)
 
     def show_mball_rod(self,mball):
@@ -224,7 +225,28 @@ class WeightedDirectionNode(Node):
 class Bud(Node):
     def _post_initialize(self,args):
         self.data = []
-        self.num_particles_to_grow = 10
+        self.num_particles_to_grow = 40
+
+    def respond_to_collision(self,plant,position,radius):
+        vec_disp = position - self.location 
+        self.data.append(vec_disp)
+        if len(self.data) >= self.num_particles_to_grow:
+            avg_disp = numpy_helpers.get_mean_vector(self.data)
+            pos = self.location + avg_disp 
+            self.data = []
+            return [BranchyNode(parent=self,coordinates=pos)]
+            self.num_particles_to_grow = 3
+            #return [Bud(parent=self,coordinates=pos)]
+        else:
+            return None
+
+    def create_branches(self,plant,number):
+        internode_vec = self.get_parent_internode_vec(plant)
+
+class BudSub(Node):
+    def _post_initialize(self,args):
+        self.data = []
+        self.num_particles_to_grow = 3
 
     def respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 

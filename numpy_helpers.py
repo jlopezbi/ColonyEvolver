@@ -1,8 +1,9 @@
 import numpy as np
 
+
 def get_mean_vector(vectors):
     '''
-    vectors must be tuple of np.array()'s with only one dimension
+    vectors must be collection of np.array()'s with only one dimension
     all vectors must be same size
     '''
     c = np.column_stack(vectors)

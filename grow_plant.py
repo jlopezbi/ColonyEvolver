@@ -18,22 +18,22 @@ front = (-side/2,-side/2,0.0)
 back = (side/2,side/2,height)
 box = world.BoxWorld(front,back)
 
-num_particles = 60
+num_particles = 90
 particle_system = nutrients.ParticleSystem(num_particles,box)
-particle_system.randomness_of_motion = 1.0
+particle_system.randomness_of_motion = 0.99
 particle_system.radius = 1.2
-particle_system.trend_motion_magnitude = 1.0
+particle_system.trend_motion_magnitude = .6
 
 start_pos = (0.0,0.0,0.0)
 weed = plant.Plant(start_pos)
 
 ''' run '''
-steps = 100
+steps = 300
 for i in range(steps):
     particle_system.move_particles()
     particle_system.re_spawn_escaped_particles()
     weed.collide_with(particle_system)
-    box.resize_to_fit(weed.bbox_lower,weed.bbox_upper,padding=particle_system.radius*2.0)
+    box.resize_to_fit(weed.bbox_lower,weed.bbox_upper,padding=particle_system.radius*.7)
 
 weed.show()
 box.show()

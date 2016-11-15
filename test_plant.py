@@ -83,5 +83,9 @@ class NodeTestCase(unittest.TestCase):
         #self.assertIsInstance(new_node,plant.Node)
         #self.plant.show()
 
+    def test_subclasses_add_attributes(self):
+        node = plant.Bud(parent = self.plant.nodes[0], coordinates= (10,10,10))
+
+
 if __name__=="__main__":
     unittest.main(exit=False)

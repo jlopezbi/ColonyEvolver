@@ -31,6 +31,8 @@ class BoxWorldTestCase(unittest.TestCase):
     def test_translate(self):
         self.box.translate((1,1,1))
         self.box.show()
+        #TODO: actually test coordinates
+
 
 if __name__=="__main__":
     unittest.main(exit=False)

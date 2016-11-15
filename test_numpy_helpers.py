@@ -7,6 +7,7 @@ class VectorHelperFunctionsTestCase(unittest.TestCase):
     def test_get_mean_vector(self):
         v1 = (1.0,0.0,0.0)
         v2 = (0.0,1.0,0.0)
+        actual = numpy_helpers.get_mean_vector([v1,v2])
         actual = numpy_helpers.get_mean_vector((v1,v2))
         desired = ( .5,  .5, 0.0)
         np.testing.assert_almost_equal(actual,desired,decimal=7)

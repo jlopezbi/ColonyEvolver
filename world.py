@@ -30,6 +30,10 @@ class BoxWorld(object):
         mesh_helpers.add_vertices_to_mesh_object(self.blender_object,[self.lower_vertex,self.upper_vertex])
 
     def translate(self,vector):
+        '''
+        move the visualization belner object of boxworld
+        does not update the true boxworld coordinates
+        '''
         self.blender_object.location = vector
 
     def get_a_spawn_location(self):
