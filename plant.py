@@ -4,9 +4,11 @@ import imp
 import numpy as np
 import math,random
 import inspect
+import vector_operations
 import mesh_helpers
 import numpy_helpers
 import metaball_helpers
+imp.reload(vector_operations)
 imp.reload(numpy_helpers)
 imp.reload(mesh_helpers)
 imp.reload(metaball_helpers)
@@ -246,7 +248,7 @@ class NodeAwareOfHistory(Node):
         if self.distance_from_branch_node >= self.branch_distance and self.is_alive and enough_hits:
             self.is_alive = False
             pos = self.calculate_pos(self.data,plant)
-            return [BranchyNode(parent=self,coordinates=pos)]
+            return [StarBurstBranchNode(parent=self,coordinates=pos)]
         elif enough_hits and self.is_alive:
             self.is_alive = False
             pos = self.calculate_pos(self.data,plant)
@@ -307,6 +309,32 @@ class BudSub(Node):
     def create_branches(self,plant,number):
         internode_vec = self.get_parent_internode_vec(plant)
 
+
+class StarBurstBranchNode(Node):
+    def _post_initialize(self,kwargs):
+        self.hits = 0
+        self.num_particles_to_grow = 1
+        self.number_branches = 5
+        self.is_alive = True
+
+    def respond_to_collision(self,plant,position,radius):
+        self.hits +=1
+        if self.enough_hits() and self.is_alive:
+            self.is_alive = False
+            axis = self.get_parent_internode_vec(plant)
+            ortho = vector_operations.get_ortho(axis)
+            vecs = vector_operations.make_star_burst(ortho,axis,self.number_branches)
+            new_nodes = []
+            for v in vecs:
+                pos = np.array(v) + self.location
+                new_nodes.append(NodeAwareOfHistory(parent=self,coordinates=pos,lineage_distance=1))
+            return new_nodes
+        else:
+            return None
+
+    def enough_hits(self):
+        return self.hits >= self.num_particles_to_grow
+
 class BranchyNode(Node):
     def _post_initialize(self,args):
         self.data = []
@@ -338,13 +366,10 @@ class BranchyNode(Node):
     def get_branch_ortho_rand(self,plant):
         internode_vec = mathutils.Vector(self.get_parent_internode_vec(plant))
         ortho_rand = internode_vec.orthogonal()
-        ortho_rand.normalized()
+        ortho_rand.normalize()
         angle = random.uniform(0.0,math.pi*2)
         ortho_rand.rotate(self.create_rotation_quat(internode_vec,angle))
-        ortho_rand.normalized()
-        n = ortho_rand * internode_vec.length  * 2.0
-        print(internode_vec.length)
-        print(n)
+        n = ortho_rand * internode_vec.length  
         return n
 
     def create_rotation_quat(self,vector,angle):
