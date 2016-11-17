@@ -21,6 +21,7 @@ custom attributes on a a bmesh vertex:
 '''
 
 
+
 class Plant(object):
     """plant composed of nodes"""
     #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
@@ -31,7 +32,8 @@ class Plant(object):
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
 
-        first_node = Bud(None,start_position)
+        #first_node = Bud(None,start_position)
+        first_node = NodeAwareOfHistory(parent=None,coordinates=start_position,lineage_distance=1)
         self.nodes = [first_node]
         self.mesh_object = mesh_helpers.init_mesh_object()
         mball_obj,mball = metaball_helpers.create_metaball_obj()
@@ -85,6 +87,8 @@ class Plant(object):
         NOTE: the reliance here on mathutils.kdtree is one of the major
         blender dependencies. However, KDTree functionality is readily available from
         other libraries
+        Probably would be better to use some sort of spatial tree designed to be dynamically
+        grown/updated
         '''
         spatial_tree = mathutils.kdtree.KDTree(self.number_of_elements())
         for i,node in enumerate(self.nodes):
@@ -132,7 +136,7 @@ class Node(object):
     IDEA: node is composed of a graph_tracker, and  responder, and a shower
     '''
 
-    def __init__(self,parent,coordinates,*args):
+    def __init__(self,parent,coordinates,**kwargs):
         if not parent:
             self.parent = self
         else:
@@ -141,9 +145,9 @@ class Node(object):
         #self.location = mathutils.Vector(coordinates)
         self.location = np.array(coordinates)
         self.radius = .08
-        self._post_initialize(args)
+        self._post_initialize(kwargs)
 
-    def _post_initialize(self,args):
+    def _post_initialize(self,kwargs):
         pass
        
     def respond_to_collision(self,plant,position,radius):
@@ -222,6 +226,46 @@ class WeightedDirectionNode(Node):
         displacement = numpy_helpers.get_weighted_average_vectors((internode_vec,node_to_sphere),weights)
         return displacement + self.location
 
+class NodeAwareOfHistory(Node):
+    '''
+    branching after some number of nodes get added from a previous branch point
+    '''
+    def _post_initialize(self,kwargs):
+        self.distance_from_branch_node = kwargs['lineage_distance']
+        self.branch_distance = 8 #nodes from branch point before a new branch point occurs
+        self.data = []
+        self.num_particles_to_grow = 20
+        self.internode_weight = .7
+        self.collision_weight = .3
+        self.is_alive = True
+
+    def respond_to_collision(self,plant,position,radius):
+        vec_disp = position - self.location 
+        self.data.append(vec_disp)
+        enough_hits = len(self.data) >= self.num_particles_to_grow
+        if self.distance_from_branch_node >= self.branch_distance and self.is_alive and enough_hits:
+            self.is_alive = False
+            pos = self.calculate_pos(self.data,plant)
+            return [BranchyNode(parent=self,coordinates=pos)]
+        elif enough_hits and self.is_alive:
+            self.is_alive = False
+            pos = self.calculate_pos(self.data,plant)
+            self.data = []
+            distance = self.distance_from_branch_node + 1
+            return [NodeAwareOfHistory(parent=self,coordinates=pos,lineage_distance=distance)]
+        else:
+            return None
+
+    def calculate_pos(self,data,plant):
+        avg_disp = numpy_helpers.get_mean_vector(self.data)
+        pos = self.location + avg_disp 
+        parent_node = self.parent
+        internode_vec = self.get_parent_internode_vec(plant)
+        weights = (self.internode_weight,self.collision_weight)
+        displacement = numpy_helpers.get_weighted_average_vectors((internode_vec,avg_disp),weights)
+        return displacement + self.location
+
+
 class Bud(Node):
     def _post_initialize(self,args):
         self.data = []
@@ -267,18 +311,23 @@ class BranchyNode(Node):
     def _post_initialize(self,args):
         self.data = []
         self.num_particles_to_grow = 1
+        self.did_run = False
 
     def respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
         self.data.append(vec_disp)
-        if len(self.data) >= self.num_particles_to_grow:
+        if len(self.data) >= self.num_particles_to_grow and not self.did_run:
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
             pos1 = self.get_branch_pos(plant)
+            pos2 = self.get_branch_pos(plant)
+            pos3 = self.get_branch_pos(plant)
+            self.did_run = True
             #return [BranchyNode(parent=self,coordinates=pos1),BranchyNode(parent=self,coordinates=pos2)]
             #return [Bud(parent=self,coordinates=pos1),Bud(parent=self,coordinates=pos2)]
-            return [Bud(parent=self,coordinates=pos1)]
+            #return [Bud(parent=self,coordinates=pos1)]
+            return [NodeAwareOfHistory(parent=self,coordinates=pos1,lineage_distance=1),NodeAwareOfHistory(parent=self,coordinates=pos2,lineage_distance=1),NodeAwareOfHistory(parent=self,coordinates=pos3,lineage_distance=1)]
         else:
             return None
 
@@ -286,14 +335,16 @@ class BranchyNode(Node):
         o = self.get_branch_ortho_rand(plant)
         return self.location + o
 
-
     def get_branch_ortho_rand(self,plant):
         internode_vec = mathutils.Vector(self.get_parent_internode_vec(plant))
         ortho_rand = internode_vec.orthogonal()
         ortho_rand.normalized()
-        n = ortho_rand * internode_vec.length * 1.3
         angle = random.uniform(0.0,math.pi*2)
-        n.rotate(self.create_rotation_quat(internode_vec,angle))
+        ortho_rand.rotate(self.create_rotation_quat(internode_vec,angle))
+        ortho_rand.normalized()
+        n = ortho_rand * internode_vec.length  * 2.0
+        print(internode_vec.length)
+        print(n)
         return n
 
     def create_rotation_quat(self,vector,angle):
