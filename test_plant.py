@@ -28,14 +28,14 @@ class PlantTestCase(unittest.TestCase):
         new_node = plant.Node(self.plant.nodes[0],(1,1,1))
         #print(self.plant.nodes[0].vert)
         #print(self.plant.nodes[0].location)
-        self.plant.add_node(new_node)
+        self.plant.append_node(new_node)
         #print(new_node.vert)
         #print(new_node.location)
         self.plant.show()
 
     def test_translate(self):
         new_node = plant.Node(self.plant.nodes[0],(1,1,0))
-        self.plant.add_node(new_node)
+        self.plant.append_node(new_node)
         self.plant.show()
         self.plant.translate((1,1,1))
 
@@ -44,10 +44,10 @@ class PlantTestCase(unittest.TestCase):
         new_node = plant.Node(0,(1,1,1))    
         np.testing.assert_equal(self.plant.bbox_lower,(0,0,0))
         np.testing.assert_equal(self.plant.bbox_upper,(0,0,0))
-        self.plant.add_node(new_node)
+        self.plant.append_node(new_node)
         np.testing.assert_equal(self.plant.bbox_upper,(1,1,1))
         new_node = plant.Node(0,(-1.,10.,1.0))    
-        self.plant.add_node(new_node)
+        self.plant.append_node(new_node)
         np.testing.assert_equal(self.plant.bbox_lower,(-1.,0.,0.))
         np.testing.assert_equal(self.plant.bbox_upper,(1.,10.,1.))
 
@@ -55,7 +55,7 @@ class PlantTestCase(unittest.TestCase):
     def _test_get_new_node_position(self):
         #Test out of date!
         new_node = plant.Node(0,(1,1,1))    
-        self.plant.add_node(new_node)
+        self.plant.append_node(new_node)
         p_pos = (2.,2.,0.)
         vec = self.plant._get_new_node_position(p_pos,node_idx=1)
         np.testing.assert_equal(vec,(1.5,1.5,.5))

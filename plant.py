@@ -22,7 +22,8 @@ custom attributes on a a bmesh vertex:
 
 
 class Plant(object):
-    """plant composed of nodes"""
+    """plant composed of nodes
+    In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
     #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
 
     def __init__(self,start_position):
@@ -42,7 +43,7 @@ class Plant(object):
 
         first_node = Bud(None,start_position)
         self.nodes = []
-        self.add_node(first_node)
+        self.append_node(first_node)
         #self._init_plant_shape()
 
     def _init_plant_shape(self):
@@ -54,7 +55,7 @@ class Plant(object):
         parent = self.get_node(idx)
         loc = parent.location + start_vec
         new_node = Node(parent=idx,coordinates=loc)
-        self.add_node(new_node)
+        self.append_node(new_node)
 
     def number_of_elements(self):
         return len(self.nodes)
@@ -81,7 +82,7 @@ class Plant(object):
                 new_nodes = collided_node.respond_to_collision(self,p.position,p.radius)
                 if new_nodes:
                     for node in new_nodes:
-                        self.add_node(node)
+                        self.append_node(node,collided_node)
                 particle_system.re_spawn_particle(p)
 
     def _create_spatial_tree(self):
@@ -99,10 +100,15 @@ class Plant(object):
     def get_node(self,node_idx):
         return self.nodes[node_idx]
 
-    def add_node(self,new_node):
+    def append_node(self,new_node,old_node=None):
+        '''
+        adds new node, then adds mesh, then updates bbox
+        Perhaps dangerous function that hides alot!
+        '''
         self.nodes.append(new_node)
-        #NOTE: Shit is getting tangled here!
         new_node.vert = self.mesh_grower.add_vertex(new_node.location)
+        if old_node:
+            self.mesh_grower.add_edge(old_node.vert,new_node.vert)
         self._update_bbox(new_node.location)
 
     def _update_bbox(self,test_location):
@@ -117,9 +123,7 @@ class Plant(object):
         if len(self.nodes)==1:
             self.nodes[0].show_single(radius=.1)
         else:
-            for node in self.nodes:
-                node.show(self.mball,self.mesh_object,self.mesh_grower)
-        self.mesh_grower.finalize()
+            self.mesh_grower.finalize()
 
     def translate(self,vector):
         '''
@@ -147,7 +151,7 @@ class Node(object):
             self.parent = parent
         #self.location = mathutils.Vector(coordinates)
         self.location = np.array(coordinates)
-        self.vert = None #needs to be mesh_grower.add_vertex(coordinates)
+        self.vert = None #will be a bmesh vert, for creating visualization
         self.radius = .08
         self._post_initialize(args)
 
@@ -181,6 +185,7 @@ class Node(object):
         return to_vec-from_vec
 
     def show(self,mball,mesh_object,mesh_grower):
+        #NOTE: BSOLETE IN THIS CASE!!hhhhh
         #self.show_mball_rod(mball)
         #self.show_mesh_line(mesh_object)
         #self.vert = mesh_grower.add_vertex(self.location)
