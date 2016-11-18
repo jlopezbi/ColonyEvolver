@@ -314,7 +314,7 @@ class StarBurstBranchNode(Node):
     def _post_initialize(self,kwargs):
         self.hits = 0
         self.num_particles_to_grow = 1
-        self.number_branches = 5
+        self.number_branches = 7
         self.is_alive = True
 
     def respond_to_collision(self,plant,position,radius):
@@ -323,11 +323,13 @@ class StarBurstBranchNode(Node):
             self.is_alive = False
             axis = self.get_parent_internode_vec(plant)
             ortho = vector_operations.get_ortho(axis)
+            ortho = vector_operations.rotate_vec(ortho,axis,random.uniform(0,math.pi*2.0))
             vecs = vector_operations.make_star_burst(ortho,axis,self.number_branches)
             new_nodes = []
             for v in vecs:
                 pos = np.array(v) + self.location
                 new_nodes.append(NodeAwareOfHistory(parent=self,coordinates=pos,lineage_distance=1))
+            
             return new_nodes
         else:
             return None
