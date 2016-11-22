@@ -20,7 +20,7 @@ box = world.BoxWorld(front,back)
 
 num_particles = 90
 particle_system = nutrients.ParticleSystem(num_particles,box)
-particle_system.randomness_of_motion = 0.99
+particle_system.randomness_of_motion = 0.5
 particle_system.radius = 1.2
 particle_system.trend_motion_magnitude = .6
 
@@ -28,7 +28,7 @@ start_pos = (0.0,0.0,0.0)
 weed = plant.Plant(start_pos)
 
 ''' run '''
-steps = 1000
+steps = 3000
 for i in range(steps):
     particle_system.move_particles()
     particle_system.re_spawn_escaped_particles()
