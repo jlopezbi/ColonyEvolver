@@ -19,22 +19,50 @@ class BoxWorld(object):
         self.upper_vertex = np.array(back_vertex)
         self.padding = 1.0
         self.offset= .001
-        self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
-        self.blender_object.show_bounds = True
+        #self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
+        self.blender_object = None
+        self.mesh_grower = mesh_helpers.MeshSkeletonGrower('BoxWorld','boxMesh')
+        #self.blender_object.show_bounds = True
 
     def set_size(self,front,back):
         self.lower_vertex = front
         self.upper_vertex = back
 
     def show(self):
-        mesh_helpers.add_vertices_to_mesh_object(self.blender_object,[self.lower_vertex,self.upper_vertex])
+        '''
+        create a mesh composed of edges of this box
+        vertex specification starts at lower corner and goes CW around bottom square,
+        then cw around top square, adding edges as it goes
+        '''
+        v1 = self.mesh_grower.add_vertex(self.lower_vertex)
+        v2 = self.mesh_grower.add_vertex((self.lower_vertex[0],self.upper_vertex[1],self.lower_vertex[2]))
+        self.mesh_grower.add_edge(v1,v2)
+        v3 = self.mesh_grower.add_vertex((self.upper_vertex[0],self.upper_vertex[1],self.lower_vertex[2]))
+        self.mesh_grower.add_edge(v2,v3)
+        v4 = self.mesh_grower.add_vertex((self.upper_vertex[0],self.lower_vertex[1],self.lower_vertex[2]))
+        self.mesh_grower.add_edge(v3,v4)
+        self.mesh_grower.add_edge(v4,v1)
+        v5 = self.mesh_grower.add_vertex((self.lower_vertex[0],self.lower_vertex[1],self.upper_vertex[2]))
+        self.mesh_grower.add_edge(v1,v5)
+        v6 = self.mesh_grower.add_vertex((self.lower_vertex[0],self.upper_vertex[1],self.upper_vertex[2]))
+        self.mesh_grower.add_edge(v2,v6)
+        self.mesh_grower.add_edge(v5,v6)
+        v7 = self.mesh_grower.add_vertex(self.upper_vertex)
+        self.mesh_grower.add_edge(v3,v7)
+        self.mesh_grower.add_edge(v6,v7)
+        v8 = self.mesh_grower.add_vertex((self.upper_vertex[0],self.lower_vertex[1],self.upper_vertex[2]))
+        self.mesh_grower.add_edge(v4,v8)
+        self.mesh_grower.add_edge(v7,v8)
+        self.mesh_grower.add_edge(v8,v5)
+        self.blender_object = self.mesh_grower.finalize()
+        #self.blender_object.show_bounds = True
 
     def translate(self,vector):
         '''
         move the visualization belner object of boxworld
         does not update the true boxworld coordinates
         '''
-        self.blender_object.location = vector
+        if self.blender_object: self.blender_object.location = vector
 
     def get_a_spawn_location(self):
         return self._get_random_pos_on_top()
