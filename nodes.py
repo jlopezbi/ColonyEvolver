@@ -118,8 +118,8 @@ class NodeAwareOfHistory(Node):
         self.branch_distance = 20 #nodes from branch point before a new branch point occurs
         self.data = []
         self.num_particles_to_grow = 20
-        self.internode_weight = .7
-        self.collision_weight = .3
+        self.internode_weight = .9
+        self.collision_weight = .1
         self.is_alive = True
 
     def respond_to_collision(self,plant,position,radius):
@@ -160,9 +160,9 @@ class Bud(Node):
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
-            return [BranchyNode(parent=self,coordinates=pos)]
+            #return [BranchyNode(parent=self,coordinates=pos)]
             self.num_particles_to_grow = 3
-            #return [Bud(parent=self,coordinates=pos)]
+            return [Bud(parent=self,coordinates=pos)]
         else:
             return None
 
@@ -192,8 +192,8 @@ class BudSub(Node):
 class StarBurstBranchNode(Node):
     def _post_initialize(self,kwargs):
         self.hits = 0
-        self.num_particles_to_grow = 1
-        self.number_branches = 11
+        self.num_particles_to_grow = 15
+        self.number_branches = 2
         self.is_alive = True
 
     def respond_to_collision(self,plant,position,radius):

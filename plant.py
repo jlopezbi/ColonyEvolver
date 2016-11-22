@@ -43,7 +43,8 @@ class Plant(object):
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
 
-        first_node = nodes.NodeAwareOfHistory(parent=None,coordinates=start_position,lineage_distance=0)
+        #first_node = nodes.NodeAwareOfHistory(parent=None,coordinates=start_position,lineage_distance=0)
+        first_node = nodes.Bud(parent=None,coordinates=start_position)
         self.nodes = []
         self.append_node(first_node)
         #self._init_plant_shape()
