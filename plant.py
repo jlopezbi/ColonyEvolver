@@ -37,9 +37,9 @@ class Plant(object):
         self.mesh_grower = mesh_helpers.MeshSkeletonGrower("Skeleton","mesh")
         #self.mesh_object = mesh_helpers.init_mesh_object()
         self.object_linked = None
-        mball_obj,mball = metaball_helpers.create_metaball_obj()
-        self.mball_obj = mball_obj
-        self.mball = mball
+        #mball_obj,mball = metaball_helpers.create_metaball_obj()
+        #self.mball_obj = mball_obj
+        #self.mball = mball
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
 
@@ -135,7 +135,7 @@ class Plant(object):
         plant. Does not update the actual coordinates of the 
         plant nodes
         '''
-        self.mball_obj.location = vector
+        #self.mball_obj.location = vector
         if self.object_linked:
             self.object_linked.location = vector
 
