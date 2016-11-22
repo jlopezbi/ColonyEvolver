@@ -11,16 +11,6 @@ geometry is to be added; easy to add floating disconnected geometry. --> functio
     2) have a single bmesh open and update the edit-mesh at the very end. --> object
 
 '''
-def init_mesh_object(name="Object"):
-    me = bpy.data.meshes.new("Mesh")
-    scene = bpy.context.scene
-    obj = bpy.data.objects.new(name, me)
-    scene.objects.link(obj)
-    return obj
-
-def init_bmesh():
-    return bmesh.new()
-
 class MeshSkeletonGrower(object):
     '''
     example use case:
@@ -39,14 +29,10 @@ class MeshSkeletonGrower(object):
         self.bm = bmesh.new()
 
     def _prepare_to_add_geom(self):
-        #to get bmesh must be in edit mode
-        #bpy.context.scene.objects.active = self.obj
-        #bpy.ops.object.mode_set(mode='EDIT', toggle=False)
-        #bpy.ops.object.mode_set(mode='EDIT', toggle=False)
         return bmesh.from_edit_mesh(self.me)
     
-    def add_vertex(self,coordinates):
-        return self.bm.verts.new(coordinates)
+    def add_vertex(self,location):
+        return self.bm.verts.new(location)
 
     def add_vertices(self,vertices):
         bm_verts = []
@@ -65,7 +51,15 @@ class MeshSkeletonGrower(object):
         self.obj = bpy.data.objects.new(self.obj_name, self.me)
         scene.objects.link(self.obj)
         return self.obj
+def init_mesh_object(name="Object"):
+    me = bpy.data.meshes.new("Mesh")
+    scene = bpy.context.scene
+    obj = bpy.data.objects.new(name, me)
+    scene.objects.link(obj)
+    return obj
 
+def init_bmesh():
+    return bmesh.new()
 
 def prep_mesh_object(obj):
     ''' sets object active and in edit mode, and retrieves the mesh
