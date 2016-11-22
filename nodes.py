@@ -14,11 +14,10 @@ imp.reload(mesh_helpers)
 imp.reload(metaball_helpers)
 
 class Node(object):
-    '''
-    input:
+    '''input:
     parent = pointer to an instance of aanother node
-    x,y,z = float coordinates of node
-    IDEA: node is composed of a graph_tracker, and  responder, and a shower
+    coordinates = float coordinates of node
+    kwargs = additional arguments for nodes which are derived from Node
     '''
 
     def __init__(self,parent,coordinates,**kwargs):
@@ -48,8 +47,6 @@ class Node(object):
             - affect all children
         '''
         return None
-        #position = self._new_position_average_internode_sphere_vecs(plant,position)
-        #return Node(parent=self,coordinates=position)
 
     def get_parent_internode_vec(self,plant):
         '''
@@ -73,6 +70,8 @@ class Node(object):
 
     def show_single(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)
+
+'''Derived Nodes'''
 class DumbNode(Node):
     def respond_to_collision(self,plant,position,radius):
         return [DumbNode(parent=self,coordinates=position)]
@@ -116,7 +115,7 @@ class NodeAwareOfHistory(Node):
     '''
     def _post_initialize(self,kwargs):
         self.distance_from_branch_node = kwargs['lineage_distance']
-        self.branch_distance = 8 #nodes from branch point before a new branch point occurs
+        self.branch_distance = 20 #nodes from branch point before a new branch point occurs
         self.data = []
         self.num_particles_to_grow = 20
         self.internode_weight = .7
@@ -148,7 +147,6 @@ class NodeAwareOfHistory(Node):
         weights = (self.internode_weight,self.collision_weight)
         displacement = numpy_helpers.get_weighted_average_vectors((internode_vec,avg_disp),weights)
         return displacement + self.location
-
 
 class Bud(Node):
     def _post_initialize(self,args):
@@ -191,12 +189,11 @@ class BudSub(Node):
     def create_branches(self,plant,number):
         internode_vec = self.get_parent_internode_vec(plant)
 
-
 class StarBurstBranchNode(Node):
     def _post_initialize(self,kwargs):
         self.hits = 0
         self.num_particles_to_grow = 1
-        self.number_branches = 7
+        self.number_branches = 11
         self.is_alive = True
 
     def respond_to_collision(self,plant,position,radius):
@@ -258,7 +255,6 @@ class BranchyNode(Node):
 
     def create_rotation_quat(self,vector,angle):
         return mathutils.Quaternion(vector,angle)
-
 
 
 def _grow_cone_position(base_vector,input_vector,radius):
