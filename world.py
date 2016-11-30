@@ -17,6 +17,7 @@ class BoxWorld(object):
     def __init__(self,front_vertex,back_vertex):
         self.lower_vertex = np.array(front_vertex)
         self.upper_vertex = np.array(back_vertex)
+        assert np.greater(self.upper_vertex,self.lower_vertex).all(), 'front vertex {} must be greater than back_vertex {}'.format(front_vertex,back_vertex)
         self.padding = 1.0
         self.offset= .001
         #self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
@@ -65,13 +66,15 @@ class BoxWorld(object):
         if self.blender_object: self.blender_object.location = vector
 
     def get_a_spawn_location(self):
-        return self._get_random_pos_on_top()
+        rand_func = random.choice((self._get_random_pos_on_top,self._get_random_pos_on_back))
+        return rand_func()
 
     def _get_random_pos_on_top(self):
         '''
         returns x,y,z coordinates for a random point on the top
         face of this BoxWorld. Note that the x,y position could lie
         on the edge of the top-face
+        So could hard-code each side... or figure out some more general way
         '''
         x_lower,x_upper = self._shrink_range_by_padding(self._x_range())
         y_lower,y_upper = self._shrink_range_by_padding(self._y_range())
@@ -79,16 +82,37 @@ class BoxWorld(object):
         x = random.uniform(x_lower,x_upper)
         y = random.uniform(y_lower,y_upper)
         return x,y,z
-    
+
+    def _get_random_pos_on_a_side(self):
+        '''
+        how to specify side?
+        +x,-x,+y,-y,+z,-z
+        '''
+        pass
+
+    def _get_random_pos_on_back(self):
+        ''' front is defined as the positive most face, along a given axis,
+        back is defined as the negative most face,
+        '''
+        y = self.lower_vertex[1] + self.offset
+        x_lower,x_upper = self._shrink_range_by_padding(self._x_range())
+        z_lower,z_upper = self._shrink_range_by_padding(self._z_range())
+        x = random.uniform(x_lower,x_upper)
+        z = random.uniform(z_lower,z_upper)
+        return x,y,z
+
     def _shrink_range_by_padding(self,domain):
         upper,lower = domain
-        return upper-self.offset, lower+self.offset
+        return lower+self.offset,upper-self.offset 
 
     def _x_range(self):
         return self.upper_vertex[0],self.lower_vertex[0]
 
     def _y_range(self):
         return self.lower_vertex[1],self.upper_vertex[1]
+
+    def _z_range(self):
+        return self.lower_vertex[2],self.upper_vertex[2]
 
     def _top_position(self):
         return self.upper_vertex[2]
