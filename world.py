@@ -76,9 +76,10 @@ class BoxWorld(object):
         on the edge of the top-face
         So could hard-code each side... or figure out some more general way
         '''
+        #z = self._top_position() - self.offset
+        z = self.upper_vertex[2] - self.offset
         x_lower,x_upper = self._shrink_range_by_padding(self._x_range())
         y_lower,y_upper = self._shrink_range_by_padding(self._y_range())
-        z = self._top_position() - self.offset
         x = random.uniform(x_lower,x_upper)
         y = random.uniform(y_lower,y_upper)
         return x,y,z

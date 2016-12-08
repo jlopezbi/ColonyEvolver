@@ -4,6 +4,7 @@ import imp
 import numpy as np
 import math,random
 import inspect
+
 import mesh_helpers
 import numpy_helpers
 import metaball_helpers
@@ -28,7 +29,7 @@ class Plant(object):
     In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
     #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
 
-    def __init__(self,start_position):
+    def __init__(self,start_position,nodeType):
         #Note: working here
         #IDEA: could have plant be an extended bmesh!
         #obserbation: need to rebuild tree each time a node is added!
@@ -43,8 +44,9 @@ class Plant(object):
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
 
-        #first_node = nodes.NodeAwareOfHistory(parent=None,coordinates=start_position,lineage_distance=0)
-        first_node = nodes.Bud(parent=None,coordinates=start_position)
+        #first_node = nodes.NodeAwareOfHistory(parent=None,location=start_position,lineage_distance=0)
+        #first_node = nodes.Bud(parent=None,location=start_position)
+        first_node = nodeType(parent=None,location=start_position)
         self.nodes = []
         self.append_node(first_node)
         #self._init_plant_shape()
@@ -57,7 +59,7 @@ class Plant(object):
         start_vec = np.array((0.0,0.0,1.3))
         parent = self.get_node(idx)
         loc = parent.location + start_vec
-        new_node = Node(parent=idx,coordinates=loc)
+        new_node = Node(parent=idx,location=loc)
         self.append_node(new_node)
 
     def number_of_elements(self):

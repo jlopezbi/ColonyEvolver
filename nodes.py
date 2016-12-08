@@ -16,18 +16,18 @@ imp.reload(metaball_helpers)
 class Node(object):
     '''input:
     parent = pointer to an instance of aanother node
-    coordinates = float coordinates of node
+    location = float location of node
     kwargs = additional arguments for nodes which are derived from Node
     '''
 
-    def __init__(self,parent,coordinates,**kwargs):
+    def __init__(self,parent,location ,**kwargs):
         if not parent:
             self.parent = self
         else:
             assert type(parent) == Node or inspect.getmro(type(parent))[1] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
             self.parent = parent
-        #self.location = mathutils.Vector(coordinates)
-        self.location = np.array(coordinates)
+        #self.location = mathutils.Vector(location )
+        self.location = np.array(location )
         self.radius = .08
         self._post_initialize(kwargs)
 
@@ -47,6 +47,14 @@ class Node(object):
             - affect all children
         '''
         return None
+
+    def parent_chain_message(self,*args):
+        self.parent_chain_action(args)
+        if self.parent != self:
+            self.parent.parent_chain_message(args)
+
+    def parent_chain_action(self,args):
+        pass
 
     def get_parent_internode_vec(self,plant):
         '''
@@ -74,13 +82,13 @@ class Node(object):
 '''Derived Nodes'''
 class DumbNode(Node):
     def respond_to_collision(self,plant,position,radius):
-        return [DumbNode(parent=self,coordinates=position)]
+        return [DumbNode(parent=self,location =position)]
 
 class SquiggleNode(Node):
 
     def respond_to_collision(self,plant,position,radius):
         position = self._new_position_average_internode_sphere_vecs(plant,position)
-        return [SquiggleNode(parent=self,coordinates=position)]
+        return [SquiggleNode(parent=self,location =position)]
 
     def _new_position_average_internode_sphere_vecs(self,plant,pos_vec):
         '''
@@ -99,7 +107,7 @@ class WeightedDirectionNode(Node):
 
     def respond_to_collision(self,plant,position,radius):
         position = self.weighted_direction(plant,position)
-        return [WeightedDirectionNode(parent=self,coordinates=position)]
+        return [WeightedDirectionNode(parent=self,location =position)]
 
     def weighted_direction(self,plant,position):
         parent_node = self.parent
@@ -115,7 +123,7 @@ class NodeAwareOfHistory(Node):
     '''
     def _post_initialize(self,kwargs):
         self.distance_from_branch_node = kwargs['lineage_distance']
-        self.branch_distance = 20 #nodes from branch point before a new branch point occurs
+        self.branch_distance = 20 #nodes from branc point before a new branch point occurs
         self.data = []
         self.num_particles_to_grow = 20
         self.internode_weight = .9
@@ -129,13 +137,13 @@ class NodeAwareOfHistory(Node):
         if self.distance_from_branch_node >= self.branch_distance and self.is_alive and enough_hits:
             self.is_alive = False
             pos = self.calculate_pos(self.data,plant)
-            return [StarBurstBranchNode(parent=self,coordinates=pos)]
+            return [StarBurstBranchNode(parent=self,location =pos)]
         elif enough_hits and self.is_alive:
             self.is_alive = False
             pos = self.calculate_pos(self.data,plant)
             self.data = []
             distance = self.distance_from_branch_node + 1
-            return [NodeAwareOfHistory(parent=self,coordinates=pos,lineage_distance=distance)]
+            return [NodeAwareOfHistory(parent=self,location =pos,lineage_distance=distance)]
         else:
             return None
 
@@ -151,7 +159,9 @@ class NodeAwareOfHistory(Node):
 class Bud(Node):
     def _post_initialize(self,args):
         self.data = []
-        self.num_particles_to_grow = 40
+        self.num_particles_to_grow = 5
+        self.radius = .01
+        self.radius_growth_step = .01
 
     def respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
@@ -160,11 +170,15 @@ class Bud(Node):
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
-            #return [BranchyNode(parent=self,coordinates=pos)]
-            self.num_particles_to_grow = 3
-            return [Bud(parent=self,coordinates=pos)]
+            #return [BranchyNode(parent=self,location =pos)]
+            self.parent_chain_message()
+            self.num_particles_to_grow = 40
+            return [Bud(parent=self,location =pos)]
         else:
             return None
+
+    def parent_chain_action(self,*args):
+        self.radius += self.radius_growth_step
 
     def create_branches(self,plant,number):
         internode_vec = self.get_parent_internode_vec(plant)
@@ -181,8 +195,8 @@ class BudSub(Node):
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
-            return [BranchyNode(parent=self,coordinates=pos)]
-            #return [Bud(parent=self,coordinates=pos)]
+            return [BranchyNode(parent=self,location =pos)]
+            #return [Bud(parent=self,location =pos)]
         else:
             return None
 
@@ -207,7 +221,7 @@ class StarBurstBranchNode(Node):
             new_nodes = []
             for v in vecs:
                 pos = np.array(v) + self.location
-                new_nodes.append(NodeAwareOfHistory(parent=self,coordinates=pos,lineage_distance=1))
+                new_nodes.append(NodeAwareOfHistory(parent=self,location =pos,lineage_distance=1))
             
             return new_nodes
         else:
@@ -233,10 +247,10 @@ class BranchyNode(Node):
             pos2 = self.get_branch_pos(plant)
             pos3 = self.get_branch_pos(plant)
             self.did_run = True
-            #return [BranchyNode(parent=self,coordinates=pos1),BranchyNode(parent=self,coordinates=pos2)]
-            #return [Bud(parent=self,coordinates=pos1),Bud(parent=self,coordinates=pos2)]
-            #return [Bud(parent=self,coordinates=pos1)]
-            return [NodeAwareOfHistory(parent=self,coordinates=pos1,lineage_distance=1),NodeAwareOfHistory(parent=self,coordinates=pos2,lineage_distance=1),NodeAwareOfHistory(parent=self,coordinates=pos3,lineage_distance=1)]
+            #return [BranchyNode(parent=self,location =pos1),BranchyNode(parent=self,location =pos2)]
+            #return [Bud(parent=self,location =pos1),Bud(parent=self,location =pos2)]
+            #return [Bud(parent=self,location =pos1)]
+            return [NodeAwareOfHistory(parent=self,location =pos1,lineage_distance=1),NodeAwareOfHistory(parent=self,location =pos2,lineage_distance=1),NodeAwareOfHistory(parent=self,location =pos3,lineage_distance=1)]
         else:
             return None
 
@@ -255,6 +269,16 @@ class BranchyNode(Node):
 
     def create_rotation_quat(self,vector,angle):
         return mathutils.Quaternion(vector,angle)
+
+class RandomBrainNode(Node):
+    def _post_initialize(self,kwargs):
+        self.processor = None
+
+    def respond_to_collision(self,plant,position,radius):
+        node_to_sphere = position - self.location 
+        parent_to_node = self.get_parent_internode_vec(plant)
+        new_position = self.processor(node_to_sphere,parent_to_node)
+        return RandomBrainNode(parent=self,location=new_position)
 
 
 def _grow_cone_position(base_vector,input_vector,radius):
