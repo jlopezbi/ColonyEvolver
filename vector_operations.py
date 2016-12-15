@@ -1,10 +1,19 @@
 import mathutils
 from math import radians
+import numpy as np
 
 
-def rotate_vec(vector,axis,angle):
+def rotate_vec_np(vector,axis,angle_rad):
     vec = mathutils.Vector(vector)
-    vec.rotate(create_rotation_quat(axis,angle))
+    vec.rotate(create_rotation_quat(axis,angle_rad))
+    return np.array(vec)
+
+def rotate_vec(vector,axis,angle_rad):
+    '''
+    angle is in ?
+    '''
+    vec = mathutils.Vector(vector)
+    vec.rotate(create_rotation_quat(axis,angle_rad))
     return vec
 
 def create_rotation_quat(vector,angle):

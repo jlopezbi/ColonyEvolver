@@ -8,10 +8,12 @@ import vector_operations
 import mesh_helpers
 import numpy_helpers
 import metaball_helpers
+import brain
 imp.reload(vector_operations)
 imp.reload(numpy_helpers)
 imp.reload(mesh_helpers)
 imp.reload(metaball_helpers)
+imp.reload(brain)
 
 class Node(object):
     '''input:
@@ -33,6 +35,11 @@ class Node(object):
 
     def _post_initialize(self,kwargs):
         pass
+    
+    def make_self_child(self,location,**kwargs):
+        #NOTE: working here
+        node_class = self.__class__
+        return node_class(self,location,**kwargs)
        
     def respond_to_collision(self,plant,position,radius):
         '''
@@ -203,7 +210,7 @@ class BudSub(Node):
     def create_branches(self,plant,number):
         internode_vec = self.get_parent_internode_vec(plant)
 
-class StarBurstBranchNode(Node):
+class StarBurstBranchNode(Node): 
     def _post_initialize(self,kwargs):
         self.hits = 0
         self.num_particles_to_grow = 15
@@ -270,15 +277,21 @@ class BranchyNode(Node):
     def create_rotation_quat(self,vector,angle):
         return mathutils.Quaternion(vector,angle)
 
+#TODO: figure out how to make a node lineage that has one type of processor
+#also make sure that processor is getting regenerated when I want it to!
+#hmmm some class stuffs...
+
 class RandomBrainNode(Node):
+
     def _post_initialize(self,kwargs):
-        self.processor = None
+        self.processor = kwargs['processor']
 
     def respond_to_collision(self,plant,position,radius):
         node_to_sphere = position - self.location 
         parent_to_node = self.get_parent_internode_vec(plant)
-        new_position = self.processor(node_to_sphere,parent_to_node)
-        return RandomBrainNode(parent=self,location=new_position)
+        new_offset = self.processor(node_to_sphere,parent_to_node)
+        new_position = self.location + new_offset
+        return [RandomBrainNode(parent=self,location=new_position,processor=self.processor)]
 
 
 def _grow_cone_position(base_vector,input_vector,radius):

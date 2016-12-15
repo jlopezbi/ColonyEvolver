@@ -29,8 +29,7 @@ class Plant(object):
     In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
     #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
 
-    def __init__(self,start_position,nodeType):
-        #Note: working here
+    def __init__(self,first_node):
         #IDEA: could have plant be an extended bmesh!
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
@@ -46,7 +45,7 @@ class Plant(object):
 
         #first_node = nodes.NodeAwareOfHistory(parent=None,location=start_position,lineage_distance=0)
         #first_node = nodes.Bud(parent=None,location=start_position)
-        first_node = nodeType(parent=None,location=start_position)
+        #first_node = nodeType(parent=None,location=start_position)
         self.nodes = []
         self.append_node(first_node)
         #self._init_plant_shape()
@@ -57,10 +56,13 @@ class Plant(object):
         '''
         idx = 0
         start_vec = np.array((0.0,0.0,1.3))
-        parent = self.get_node(idx)
-        loc = parent.location + start_vec
-        new_node = Node(parent=idx,location=loc)
-        self.append_node(new_node)
+        parent_node = self.get_node(idx)
+        loc = parent_node.location + start_vec
+        new_node = self.nodes[0].make_self_child(location=loc)
+        #hardcoded temporarily!!
+
+        #new_node = nodes.RandomBrainNode(parent=parent_node,location=loc,processor=parent_node.processor)
+        self.append_node(new_node,old_node=parent_node)
 
     def number_of_elements(self):
         return len(self.nodes)

@@ -66,8 +66,9 @@ class BoxWorld(object):
         if self.blender_object: self.blender_object.location = vector
 
     def get_a_spawn_location(self):
-        rand_func = random.choice((self._get_random_pos_on_top,self._get_random_pos_on_back))
-        return rand_func()
+        #func = random.choice((self._get_random_pos_on_top,self._get_random_pos_on_back))
+        func = self._get_random_pos_on_top
+        return func()
 
     def _get_random_pos_on_top(self):
         '''
