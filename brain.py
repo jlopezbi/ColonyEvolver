@@ -36,8 +36,8 @@ def make_vec_pset():
     two_in = [array_type,array_type]
     one_out = array_type
     pset = gp.PrimitiveSetTyped("main",two_in,array_type)
-    pset.addPrimitive(np.add,two_in,array_type)
-    pset.addPrimitive(subtractnz,two_in,array_type)
+    #pset.addPrimitive(np.add,two_in,array_type)
+    #pset.addPrimitive(subtractnz,two_in,array_type)
     #pset.addPrimitive(np.multiply,two_in,array_type)
     pset.addPrimitive(np.dot,two_in,float)
     #pset.addPrimitive(np.maximum,two_in,array_type)
