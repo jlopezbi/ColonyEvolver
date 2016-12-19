@@ -19,6 +19,7 @@ class BoxWorld(object):
         self.upper_vertex = np.array(back_vertex)
         assert np.greater(self.upper_vertex,self.lower_vertex).all(), 'front vertex {} must be greater than back_vertex {}'.format(front_vertex,back_vertex)
         self.padding = 1.0
+        self.padding_multiplier = 2.0
         self.offset= .001
         #self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
         self.blender_object = None

@@ -32,6 +32,7 @@ class Node(object):
         self.location = np.array(location )
         self.radius = .08
         self._post_initialize(kwargs)
+        self.hit_count = 0
 
     def _post_initialize(self,kwargs):
         pass
@@ -53,7 +54,16 @@ class Node(object):
             - affect all parents
             - affect all children
         '''
-        return None
+        self.hit_count +=1
+
+        new_nodes = self._specialized_respond_to_collision(plant,position,radius)
+        return new_nodes
+
+    def _specialized_respond_to_collision(self,plant,position,radius):
+        '''
+        to be overwritten by derivitative nodes
+        '''
+        return [None]
 
     def parent_chain_message(self,*args):
         self.parent_chain_action(args)
@@ -88,12 +98,12 @@ class Node(object):
 
 '''Derived Nodes'''
 class DumbNode(Node):
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         return [DumbNode(parent=self,location =position)]
 
 class SquiggleNode(Node):
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         position = self._new_position_average_internode_sphere_vecs(plant,position)
         return [SquiggleNode(parent=self,location =position)]
 
@@ -112,7 +122,7 @@ class SquiggleNode(Node):
 
 class WeightedDirectionNode(Node):
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         position = self.weighted_direction(plant,position)
         return [WeightedDirectionNode(parent=self,location =position)]
 
@@ -137,7 +147,7 @@ class NodeAwareOfHistory(Node):
         self.collision_weight = .1
         self.is_alive = True
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
         self.data.append(vec_disp)
         enough_hits = len(self.data) >= self.num_particles_to_grow
@@ -170,7 +180,7 @@ class Bud(Node):
         self.radius = .01
         self.radius_growth_step = .01
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
         self.data.append(vec_disp)
         if len(self.data) >= self.num_particles_to_grow:
@@ -195,7 +205,7 @@ class BudSub(Node):
         self.data = []
         self.num_particles_to_grow = 3
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
         self.data.append(vec_disp)
         if len(self.data) >= self.num_particles_to_grow:
@@ -217,7 +227,7 @@ class StarBurstBranchNode(Node):
         self.number_branches = 2
         self.is_alive = True
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         self.hits +=1
         if self.enough_hits() and self.is_alive:
             self.is_alive = False
@@ -243,7 +253,7 @@ class BranchyNode(Node):
         self.num_particles_to_grow = 1
         self.did_run = False
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
         self.data.append(vec_disp)
         if len(self.data) >= self.num_particles_to_grow and not self.did_run:
@@ -286,7 +296,7 @@ class RandomBrainNode(Node):
     def _post_initialize(self,kwargs):
         self.processor = kwargs['processor']
 
-    def respond_to_collision(self,plant,position,radius):
+    def _specialized_respond_to_collision(self,plant,position,radius):
         node_to_sphere = position - self.location 
         parent_to_node = self.get_parent_internode_vec(plant)
         new_offset = self.processor(node_to_sphere,parent_to_node)

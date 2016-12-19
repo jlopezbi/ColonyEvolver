@@ -14,6 +14,36 @@ class BrainTestCase(unittest.TestCase):
     def setUp(self):
         pass
 
+    def _make_tree(self,pset):
+        return brain.generate_processor_tree(pset,1,4)
+
     def test_make_vec_pset(self):
-        pset = brain.make_vec_pset()
+        self.pset = brain.make_vec_pset()
+        tree,func = self._make_tree(self.pset)
+
+    def test_big_pset(self):
+        self.pset = brain.big_pset()
+        tree,func = self._make_tree(self.pset)
+
+    def test_save_processor_tree(self):
+        self.pset = brain.big_pset()
+        tree,func = self._make_tree(self.pset)
+        brain.save_processor_tree(tree)
+
+    def test_load_text(self):
+        self.test_save_processor_tree()
+        tree_text = brain.load_text("tree.txt")
+        self.assertIsInstance(tree_text,str)
+
+    def test_resurrect_processor_tree(self):
+        self.test_save_processor_tree()
+        tree,func = brain.resurrect_processor_tree(self.pset)
+        self.assertIsInstance(func,type(lambda x:1))
+
+
+
+
+
+
+
 

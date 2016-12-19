@@ -45,4 +45,7 @@ def get_ortho(vector):
     ortho_arbitrary *= vec.length
     return  ortho_arbitrary
 
+def get_ortho_np(vector):
+    return np.array(get_ortho(vector))
+
 
