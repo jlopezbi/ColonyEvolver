@@ -299,7 +299,11 @@ class RandomBrainNode(Node):
     def _specialized_respond_to_collision(self,plant,position,radius):
         node_to_sphere = position - self.location 
         parent_to_node = self.get_parent_internode_vec(plant)
+        if not parent_to_node.any():
+            return None
         new_offset = self.processor(node_to_sphere,parent_to_node)
+        if not new_offset.any():
+            return None
         new_position = self.location + new_offset
         return [RandomBrainNode(parent=self,location=new_position,processor=self.processor)]
 

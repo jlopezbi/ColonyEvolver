@@ -8,7 +8,6 @@ import vector_operations
 import math, random
 import uuid
 
-print("YABABADO DOOOO")
 
 '''
 inputs:(collision event) rel_sphere_pos, rel_parent_pos
@@ -16,7 +15,10 @@ constants: ? maybe a constant vector like z up?
 output: new_node_position 
 '''
 
-def scale(array,scalar): return array*scalar
+def scale_protected(array,scalar): 
+    if scalar == 0.0:
+        return array
+    return array*scalar
 
 def subtractnz(array_x,array_y): return array_x if (array_x==array_y).all() else array_x-array_y
 
@@ -27,12 +29,21 @@ def mean_vec(x,y):
 def add_scalar(x,y):
     return x+y
 
+def mult_scalar(x,y):
+    return x*y
+
+def if_greater_vec(w,x,y,z):
+    return if_greater(w,x,y,z)
+
+def if_greater_float(w,x,y,z):
+    return if_greater(w,x,y,z)
+
 def if_greater(w,x,y,z):
     '''
     w float
     x float
-    y vec
-    z vec
+    y any type
+    z any type
     '''
     return if_else(greater(w,x),y,z)
 
@@ -44,32 +55,61 @@ def if_else(x,y,z):
 
 def larger(): pass
 
+def unit_vector(vector):
+    """ Returns the unit vector of the vector.  """
+    if not vector.any():
+        return vector
+    return vector / np.linalg.norm(vector)
+
+def angle_between(v1, v2):
+    """ Returns the angle in radians between vectors 'v1' and 'v2'::
+
+            >>> angle_between((1, 0, 0), (0, 1, 0))
+            1.5707963267948966
+            >>> angle_between((1, 0, 0), (1, 0, 0))
+            0.0
+            >>> angle_between((1, 0, 0), (-1, 0, 0))
+            3.141592653589793
+    """
+    v1_u = unit_vector(v1)
+    v2_u = unit_vector(v2)
+    return np.arccos(np.clip(np.dot(v1_u, v2_u), -1.0, 1.0))
+
+    return np.cross(x,y)
+
+def x_comp(v):
+    return v[0]
+
+def y_comp(v):
+    return v[1]
+
+def z_comp(v):
+    return v[2]
+
 def big_pset():
-    array_type = np.ndarray
-    two_in = [array_type,array_type]
-    one_out = array_type
-    pset = gp.PrimitiveSetTyped("main",two_in,array_type)
+    vec = np.ndarray
+    two_in = [vec ,vec ]
+    pset = gp.PrimitiveSetTyped("main",two_in,vec )
     ''' vec '''
-    #pset.addPrimitive(np.add,two_in,array_type)
-    #pset.addPrimitive(subtractnz,two_in,array_type)
     pset.addPrimitive(np.dot,two_in,float)
-    #pset.addPrimitive(np.maximum,two_in,array_type)
-    #pset.addPrimitive(np.minimum,two_in,array_type)
-    pset.addPrimitive(mean_vec,two_in,array_type)
-    pset.addPrimitive(vector_operations.rotate_vec_np,[array_type,array_type,float],array_type)
-    pset.addPrimitive(scale,[array_type,float],array_type)
-    pset.addPrimitive(np.linalg.norm, [array_type],float)
+    pset.addPrimitive(np.cross,two_in,vec)
+    pset.addPrimitive(mean_vec,two_in,vec )
+    pset.addPrimitive(vector_operations.rotate_vec_np,[vec ,vec ,float],vec )
+    pset.addPrimitive(scale,[vec ,float],vec )
+    pset.addPrimitive(np.linalg.norm, [vec ],float)
+    pset.addPrimitive(angle_between,[vec ,vec ],float)
+    pset.addPrimitive(unit_vector,[vec],vec)
+    pset.addPrimitive(if_greater_vec, [float,float,vec ,vec], vec)
+    pset.addPrimitive(x_comp, [vec],float)
+    pset.addPrimitive(y_comp, [vec],float)
+    pset.addPrimitive(z_comp, [vec],float)
     '''non vec'''
     pset.addPrimitive(add_scalar, [float,float], float)
-    pset.addPrimitive(if_greater, [float,float, array_type,array_type], array_type)
-    
-    #pset.addPrimitive(np.divide,two_in,array_type) gets divide by zero errors
-    #pset.addPrimitive(np.reciprocal,two_in,array_type) gets divide by zero errors
+    pset.addPrimitive(if_greater_float, [float, float, float, float ], float)
+    pset.addPrimitive(mult_scalar, [float, float], float)
     pset.addTerminal(.5,float,'c1')
-    e_name = str(uuid.uuid1())
-    pset.addEphemeralConstant(e_name,lambda: random.uniform(0, math.pi*2.),float)
+    pset.addEphemeralConstant(str(uuid.uuid1()),lambda: random.uniform(0, math.pi*2.),float)
     pset.addEphemeralConstant(str(uuid.uuid1()),lambda: random.uniform(-1,1),float)
-    pset.addEphemeralConstant(str(uuid.uuid1()),lambda: bool(random.randint(0,1)),bool)
     pset.renameArguments(ARG0="x")
     pset.renameArguments(ARG1="y")
     return pset
@@ -128,7 +168,10 @@ def plot_processor_tree(expression):
     g.layout(prog="dot")
     for i in nodes:
         n = g.get_node(i)
-        n.attr["label"] = labels[i]
+        l = labels[i]
+        if type(l) == float:
+            l = round(l,2)
+        n.attr["label"] = l
     g.draw("cat.pdf")
 
 def generate_processor_tree(pset,minDepth,maxDepth):

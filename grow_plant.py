@@ -25,14 +25,14 @@ box = world.BoxWorld(front,back)
 num_particles = 60
 particle_system = nutrients.ParticleSystem(num_particles,box)
 particle_system.randomness_of_motion = 0.9
-particle_system.radius = .5
+particle_system.radius = 1.0
 particle_system.trend_motion_magnitude = .01
 padding_multiplier = 2.0
 
 start_pos = (0.0,0.0,0.0)
 second_pos = (0.0,0.0,0.5)
 primitive_set = brain.big_pset()
-#tree,pBrain = brain.generate_processor_tree(primitive_set,minDepth=1,maxDepth=6)
+#tree,pBrain = brain.generate_processor_tree(primitive_set,minDepth=2,maxDepth=10)
 tree,pBrain = brain.resurrect_processor_tree(primitive_set)
 brain.plot_processor_tree(tree)
 brain.save_processor_tree(tree)
@@ -43,7 +43,7 @@ weed = plant.Plant(first_node)
 weed.append_node(second_node,old_node=first_node)
 
 ''' run '''
-steps =100
+steps =400
 for i in range(steps):
     particle_system.move_particles()
     particle_system.re_spawn_escaped_particles()
