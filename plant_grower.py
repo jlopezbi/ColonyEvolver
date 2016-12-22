@@ -35,9 +35,8 @@ class Grower(object):
         self.particles.set_initial_positions()
 
     def report_growth(self,weed):
-        #print('BoxWorld: ' + self.box.report())
-        #return return string
-        pass
+        box_report = self.box.report()
+        print('BoxWorld: ' + box_report)
 
     def grow(self,seed,t_steps=100):
         weed = plant.Plant(seed)

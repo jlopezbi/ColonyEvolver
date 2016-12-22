@@ -11,6 +11,14 @@ geometry is to be added; easy to add floating disconnected geometry. --> functio
     2) have a single bmesh open and update the edit-mesh at the very end. --> object
 
 '''
+'''
+notes for development:
+custom attributes on a a bmesh vertex:
+    http://blender.stackexchange.com/questions/7094/python-assign-custom-tag-to-vertices
+    and
+    http://blender.stackexchange.com/questions/8992/python-api-custom-properties-for-vertices-edges-faces
+'''
+
 class MeshSkeletonGrower(object):
     '''
     example use case:

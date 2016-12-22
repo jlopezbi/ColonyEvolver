@@ -33,6 +33,11 @@ class BoxWorld(object):
     def setup_mesh_grower(self):
         return mesh_helpers.MeshSkeletonGrower(self.obj_name,self.mesh_name)
 
+    def report(self):
+        '''return a string of relevant information about current state of box'''
+        report_string = 'verts: ' + str(self.lower_vertex) + ' ' + str(self.upper_vertex)
+        dimensions = 'dimensions: ' + ','.join((str(self.dimension_along(0)),str(self.dimension_along(1)), str(self.dimension_along(2))))
+        return report_string + '\n' + dimensions
 
     def show(self):
         '''
@@ -124,6 +129,7 @@ class BoxWorld(object):
     def _z_range(self):
         return self.lower_vertex[2],self.upper_vertex[2]
 
+
     def _top_position(self):
         return self.upper_vertex[2]
     
@@ -133,7 +139,19 @@ class BoxWorld(object):
         return copy
     
     def x_dimension(self):
-        return self.upper_vertex[0] - self.lower_vertex[0]
+        l,u = self._x_range()
+        return math.abs(u-l)
+
+    def _range_along(self,axis):
+        assert axis in (0,1,2), 'axis was {}, must be one of 0 (x) 1 (y) or 2 (z)'.format(axis)
+        return self.lower_vertex[axis], self.upper_vertex[axis]
+
+    def dimension_along(self,axis):
+        '''
+        axis = (0, 1, 2) representing (x, y, z)
+        '''
+        l,u = self._range_along(axis)
+        return u-l
 
     def particle_is_inside(self,particle):
         '''
