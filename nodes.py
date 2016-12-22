@@ -22,17 +22,17 @@ class Node(object):
     kwargs = additional arguments for nodes which are derived from Node
     '''
 
-    def __init__(self,parent,location ,**kwargs):
+    def __init__(self, parent=None, location=(0.0,0.0,0.0) , **kwargs):
         if not parent:
             self.parent = self
         else:
-            assert type(parent) == Node or inspect.getmro(type(parent))[1] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
+            assert type(parent) == Node or inspect.getmro(type(parent))[-2] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
             self.parent = parent
         #self.location = mathutils.Vector(location )
         self.location = np.array(location )
         self.radius = .08
         self._post_initialize(kwargs)
-        self.hit_count = 0
+        self.health = 10
 
     def _post_initialize(self,kwargs):
         pass
@@ -54,10 +54,16 @@ class Node(object):
             - affect all parents
             - affect all children
         '''
-        self.hit_count +=1
+        self.health +=10
 
         new_nodes = self._specialized_respond_to_collision(plant,position,radius)
         return new_nodes
+
+    def time_passed(self):
+        '''
+        function called by simulation to let the node know that time has passed
+        '''
+        self.health -=1
 
     def _specialized_respond_to_collision(self,plant,position,radius):
         '''
