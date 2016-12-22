@@ -20,6 +20,9 @@ def scale_protected(array,scalar):
         return array
     return array*scalar
 
+def scale(array,scalar):
+    return array*scalar
+
 def subtractnz(array_x,array_y): return array_x if (array_x==array_y).all() else array_x-array_y
 
 def mean_vec(x,y):

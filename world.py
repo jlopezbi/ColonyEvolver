@@ -21,14 +21,18 @@ class BoxWorld(object):
         self.padding = 1.0
         self.padding_multiplier = 2.0
         self.offset= .001
-        #self.blender_object = mesh_helpers.init_mesh_object("BoxWorld") 
         self.blender_object = None
-        self.mesh_grower = mesh_helpers.MeshSkeletonGrower('BoxWorld','boxMesh')
-        #self.blender_object.show_bounds = True
+        self.obj_name = 'BoxWorld'
+        self.mesh_name = 'boxMesh'
+        self.mesh_grower = self.setup_mesh_grower()
 
     def set_size(self,front,back):
         self.lower_vertex = front
         self.upper_vertex = back
+
+    def setup_mesh_grower(self):
+        return mesh_helpers.MeshSkeletonGrower(self.obj_name,self.mesh_name)
+
 
     def show(self):
         '''
@@ -36,6 +40,10 @@ class BoxWorld(object):
         vertex specification starts at lower corner and goes CW around bottom square,
         then cw around top square, adding edges as it goes
         '''
+        # if a blender object already exists then the mesh_grower must have been finalized;
+        # in this case make a new mesh_grower and object
+        if self.blender_object:
+            self.mesh_grower = self.setup_mesh_grower()
         v1 = self.mesh_grower.add_vertex(self.lower_vertex)
         v2 = self.mesh_grower.add_vertex((self.lower_vertex[0],self.upper_vertex[1],self.lower_vertex[2]))
         self.mesh_grower.add_edge(v1,v2)
@@ -57,7 +65,6 @@ class BoxWorld(object):
         self.mesh_grower.add_edge(v7,v8)
         self.mesh_grower.add_edge(v8,v5)
         self.blender_object = self.mesh_grower.finalize()
-        #self.blender_object.show_bounds = True
 
     def translate(self,vector):
         '''

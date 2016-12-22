@@ -26,10 +26,11 @@ custom attributes on a a bmesh vertex:
 
 class Plant(object):
     """plant composed of nodes
+    seed_nodes = iterable collection of obects derived from Node
     In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
     #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
 
-    def __init__(self,first_node):
+    def __init__(self,seed_nodes):
         #IDEA: could have plant be an extended bmesh!
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
@@ -47,7 +48,11 @@ class Plant(object):
         #first_node = nodes.Bud(parent=None,location=start_position)
         #first_node = nodeType(parent=None,location=start_position)
         self.nodes = []
-        self.append_node(first_node)
+        try:
+            for node in seed_nodes:
+                self.append_node(node)
+        except TypeError:
+            self.append_node(seed_nodes)
         #self._init_plant_shape()
 
     def _init_plant_shape(self):

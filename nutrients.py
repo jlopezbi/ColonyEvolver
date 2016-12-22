@@ -19,9 +19,9 @@ class ParticleSystem(object):
         self.radius = .6
         self.num_particles = num_particles
         self.particles = []
-        self._init_particles()
+        self.set_initial_positions()
 
-    def _init_particles(self):
+    def set_initial_positions(self):
         #perhaps adding all the particles to the top plane and the running
         #the simulation causes some odd stuff to happen right at the beginning
         # i.e. a ton of particles colliding in a small time frame. How to space it out?
