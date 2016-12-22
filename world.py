@@ -35,9 +35,10 @@ class BoxWorld(object):
 
     def report(self):
         '''return a string of relevant information about current state of box'''
-        report_string = 'verts: ' + str(self.lower_vertex) + ' ' + str(self.upper_vertex)
+        bbox = 'verts: ' + str(self.lower_vertex) + ' ' + str(self.upper_vertex)
         dimensions = 'dimensions: ' + ','.join((str(self.dimension_along(0)),str(self.dimension_along(1)), str(self.dimension_along(2))))
-        return report_string + '\n' + dimensions
+        string =  bbox + '\n' + dimensions
+        return bbox
 
     def show(self):
         '''

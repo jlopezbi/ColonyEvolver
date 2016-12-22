@@ -15,20 +15,11 @@ imp.reload(metaball_helpers)
 imp.reload(nodes)
 
 
-'''
-notes for development:
-custom attributes on a a bmesh vertex:
-    http://blender.stackexchange.com/questions/7094/python-assign-custom-tag-to-vertices
-    and
-    http://blender.stackexchange.com/questions/8992/python-api-custom-properties-for-vertices-edges-faces
-'''
-
-
 class Plant(object):
     """plant composed of nodes
     seed_nodes = iterable collection of obects derived from Node
+    Note that seed_nodes must already have parent relations setup amongst themselves
     In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
-    #NOTE: consider making plant a special type of bMesh. might be advantageous for lookup operations
 
     def __init__(self,seed_nodes):
         #IDEA: could have plant be an extended bmesh!
@@ -43,37 +34,17 @@ class Plant(object):
         #self.mball = mball
         self.bbox_lower = np.array((0.,0.,0.)) 
         self.bbox_upper = np.array((0.,0.,0.))
-
-        #first_node = nodes.NodeAwareOfHistory(parent=None,location=start_position,lineage_distance=0)
-        #first_node = nodes.Bud(parent=None,location=start_position)
-        #first_node = nodeType(parent=None,location=start_position)
         self.nodes = []
         try:
             for node in seed_nodes:
                 self.append_node(node)
         except TypeError:
             self.append_node(seed_nodes)
-        #self._init_plant_shape()
-
-    def _init_plant_shape(self):
-        '''
-        add custom initial geometry to plant
-        '''
-        idx = 0
-        start_vec = np.array((0.0,0.0,1.3))
-        parent_node = self.get_node(idx)
-        loc = parent_node.location + start_vec
-        new_node = self.nodes[0].make_self_child(location=loc)
-        #hardcoded temporarily!!
-
-        #new_node = nodes.RandomBrainNode(parent=parent_node,location=loc,processor=parent_node.processor)
-        self.append_node(new_node,old_node=parent_node)
 
     def number_of_elements(self):
         return len(self.nodes)
     
     def collide_with(self,particle_system):
-        #NOTE: not tested
         '''
         NOTE: this is where an important entanglement between plant
         and nutrients occurs!
@@ -96,6 +67,12 @@ class Plant(object):
                     for node in new_nodes:
                         self.append_node(node,collided_node)
                 particle_system.re_spawn_particle(p)
+
+    def report(self):
+        nodes_report = 'number of nodes: ' + str(len(self.nodes))
+        size_report = 'bbox: ' + str(self.bbox_lower) + str(self.bbox_upper)
+        report_string = nodes_report + '\n' + size_report
+        return size_report
 
     def _create_spatial_tree(self):
         '''
@@ -128,9 +105,6 @@ class Plant(object):
     def _update_bbox(self,test_location):
         self.bbox_lower = np.minimum(self.bbox_lower,test_location)
         self.bbox_upper = np.maximum(self.bbox_upper,test_location)
-
-    def _get_parent_node(self,node):
-        return self.get_node(node.parent)
 
     def show(self):
         #for some reason all geometry appears to be parented together in blender

@@ -36,7 +36,9 @@ class Grower(object):
 
     def report_growth(self,weed):
         box_report = self.box.report()
+        weed_report = weed.report()
         print('BoxWorld: ' + box_report)
+        print('Plant   : ' + weed_report)
 
     def grow(self,seed,t_steps=100):
         weed = plant.Plant(seed)
