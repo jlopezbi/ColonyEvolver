@@ -1,12 +1,13 @@
 #Plant Simulations in Blender
-generative growth algorithm inspired by plant growth
-Currently in development.
+generative growth algorithm inspired by plant and coral growth
 
 ## To Run
 - download blender: www.blender.org
 - in blender open the template.blend file included in this repository
 - change blender to script viewport mode
 - load the grow_plant.py script from this repository and press "run"
+At the moment the project depends on the deap library: https://github.com/DEAP/deap
+To run your going to need to install the deap library for python3 and then add the location of the library to the python path within blender.
 
 ## First Iteration Strategy
 particles jitter downwards.
