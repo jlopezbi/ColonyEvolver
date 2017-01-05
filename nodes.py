@@ -54,7 +54,7 @@ class Node(object):
             - affect all parents
             - affect all children
         '''
-        self.health +=10
+        self.health +=5
 
         new_nodes = self._specialized_respond_to_collision(plant,position,radius)
         return new_nodes
@@ -297,7 +297,7 @@ class BranchyNode(Node):
 #also make sure that processor is getting regenerated when I want it to!
 #hmmm some class stuffs...
 
-class RandomBrainNode(Node):
+class BrainNode(Node):
 
     def _post_initialize(self,kwargs):
         self.processor = kwargs['processor']
@@ -311,7 +311,7 @@ class RandomBrainNode(Node):
         if not new_offset.any():
             return None
         new_position = self.location + new_offset
-        return [RandomBrainNode(parent=self,location=new_position,processor=self.processor)]
+        return [BrainNode(parent=self,location=new_position,processor=self.processor)]
 
 
 def _grow_cone_position(base_vector,input_vector,radius):

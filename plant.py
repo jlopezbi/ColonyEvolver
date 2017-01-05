@@ -5,18 +5,19 @@ import numpy as np
 import math,random
 import inspect
 
+import base_objects
 import mesh_helpers
 import numpy_helpers
 import metaball_helpers
 import nodes
+imp.reload(base_objects)
 imp.reload(numpy_helpers)
 imp.reload(mesh_helpers)
 imp.reload(metaball_helpers)
 imp.reload(nodes)
 
-
 class Plant(object):
-    """plant composed of nodes
+    """plant composed of nodes, a bounding box
     seed_nodes = iterable collection of obects derived from Node
     Note that seed_nodes must already have parent relations setup amongst themselves
     In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
@@ -32,8 +33,7 @@ class Plant(object):
         #mball_obj,mball = metaball_helpers.create_metaball_obj()
         #self.mball_obj = mball_obj
         #self.mball = mball
-        self.bbox_lower = np.array((0.,0.,0.)) 
-        self.bbox_upper = np.array((0.,0.,0.))
+        self.bbox = base_objects.BoundingBox()
         self.nodes = []
         try:
             for node in seed_nodes:
@@ -43,7 +43,21 @@ class Plant(object):
 
     def number_of_elements(self):
         return len(self.nodes)
-    
+
+    def update_time_for_all_nodes(self):
+        '''
+        naively iterates through all nodes and tells
+        node that time passed
+        '''
+        for node in self.nodes:
+            node.time_passed()
+
+    def get_health(self):
+        scores = []
+        for n in self.nodes:
+            scores.append(n.health)
+        return np.average(scores)
+
     def collide_with(self,particle_system):
         '''
         NOTE: this is where an important entanglement between plant
@@ -70,7 +84,7 @@ class Plant(object):
 
     def report(self):
         nodes_report = 'number of nodes: ' + str(len(self.nodes))
-        size_report = 'bbox: ' + str(self.bbox_lower) + str(self.bbox_upper)
+        size_report = 'bbox: ' + str(self.bbox.bbox_lower) + str(self.bbox.bbox_upper)
         report_string = nodes_report + '\n' + size_report
         return size_report
 
@@ -100,11 +114,7 @@ class Plant(object):
         new_node.vert = self.mesh_grower.add_vertex(new_node.location)
         if old_node:
             self.mesh_grower.add_edge(old_node.vert,new_node.vert)
-        self._update_bbox(new_node.location)
-
-    def _update_bbox(self,test_location):
-        self.bbox_lower = np.minimum(self.bbox_lower,test_location)
-        self.bbox_upper = np.maximum(self.bbox_upper,test_location)
+        self.bbox.update_bbox(new_node.location)
 
     def show(self):
         #for some reason all geometry appears to be parented together in blender

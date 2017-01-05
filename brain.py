@@ -14,7 +14,6 @@ inputs:(collision event) rel_sphere_pos, rel_parent_pos
 constants: ? maybe a constant vector like z up?
 output: new_node_position 
 '''
-
 def scale_protected(array,scalar): 
     if scalar == 0.0:
         return array
@@ -66,7 +65,6 @@ def unit_vector(vector):
 
 def angle_between(v1, v2):
     """ Returns the angle in radians between vectors 'v1' and 'v2'::
-
             >>> angle_between((1, 0, 0), (0, 1, 0))
             1.5707963267948966
             >>> angle_between((1, 0, 0), (1, 0, 0))

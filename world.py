@@ -8,6 +8,9 @@ if not loc in sys.path:
 import mesh_helpers
 imp.reload(mesh_helpers)
 
+#NOTE: both world and plant make use of a bounding box object with the same requirements.
+#this object exists and is being used by plant, but further work is required to make it used by boxworld
+
 class BoxWorld(object):
     """ world defines bounds for nutrients and creature """
     #This should be a very stable class in the project
@@ -17,7 +20,8 @@ class BoxWorld(object):
     def __init__(self,front_vertex,back_vertex):
         self.lower_vertex = np.array(front_vertex)
         self.upper_vertex = np.array(back_vertex)
-        assert np.greater(self.upper_vertex,self.lower_vertex).all(), 'front vertex {} must be greater than back_vertex {}'.format(front_vertex,back_vertex)
+        greater_or_equal = np.greater(self.upper_vertex,self.lower_vertex).all() or np.equal(self.upper_vertex,self.lower_vertex).all()
+        assert greater_or_equal, 'front vertex {} must be greater than back_vertex {}'.format(front_vertex,back_vertex)
         self.padding = 1.0
         self.padding_multiplier = 2.0
         self.offset= .001

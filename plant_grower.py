@@ -15,6 +15,9 @@ imp.reload(brain)
 imp.reload(nutrients)
 imp.reload(world)
 
+def create_seed(func):
+    return nodes.BrainNode(processor=func)
+
 class Grower(object):
     def __init__(self,box,particles):
         self.box = box
@@ -31,7 +34,7 @@ class Grower(object):
         return cls(box,particle_sys)
 
     def _intialize_to_plant(self,plant):
-        self.box.resize_to_fit(plant.bbox_lower,plant.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
+        self.box.resize_to_fit(plant.bbox.bbox_lower,plant.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
         self.particles.set_initial_positions()
 
     def report_growth(self,weed):
@@ -41,14 +44,19 @@ class Grower(object):
         print('Plant   : ' + weed_report)
 
     def grow(self,seed,t_steps=100):
+        '''
+        seed is an iterable of node instances, who already have connections between
+        them
+        '''
         weed = plant.Plant(seed)
         self._intialize_to_plant(weed)
         for i in range(t_steps):
             self.particles.move_particles()
             self.particles.re_spawn_escaped_particles()
             weed.collide_with(self.particles)
-            self.box.resize_to_fit(weed.bbox_lower,weed.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
-            self.report_growth(weed)
+            weed.update_time_for_all_nodes()
+            self.box.resize_to_fit(weed.bbox.bbox_lower,weed.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
+            #self.report_growth(weed)
         return weed
 
 

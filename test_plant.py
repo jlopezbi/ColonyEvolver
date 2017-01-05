@@ -41,14 +41,14 @@ class PlantTestCase(unittest.TestCase):
 
     def test_updates_bbox_when_node_added(self):
         new_node = nodes.Node(0,(1,1,1))    
-        np.testing.assert_equal(self.plant.bbox_lower,(0,0,0))
-        np.testing.assert_equal(self.plant.bbox_upper,(0,0,0))
+        np.testing.assert_equal(self.plant.bbox.bbox_lower,(0,0,0))
+        np.testing.assert_equal(self.plant.bbox.bbox_upper,(0,0,0))
         self.plant.append_node(new_node)
-        np.testing.assert_equal(self.plant.bbox_upper,(1,1,1))
+        np.testing.assert_equal(self.plant.bbox.bbox_upper,(1,1,1))
         new_node = nodes.Node(0,(-1.,10.,1.0))    
         self.plant.append_node(new_node)
-        np.testing.assert_equal(self.plant.bbox_lower,(-1.,0.,0.))
-        np.testing.assert_equal(self.plant.bbox_upper,(1.,10.,1.))
+        np.testing.assert_equal(self.plant.bbox.bbox_lower,(-1.,0.,0.))
+        np.testing.assert_equal(self.plant.bbox.bbox_upper,(1.,10.,1.))
 
 
     def _test_get_new_node_position(self):
