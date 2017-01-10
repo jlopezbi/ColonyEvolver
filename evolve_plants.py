@@ -1,3 +1,4 @@
+
 '''
 Initialized on 2016/12/16
 Josh Lopez-Binder. hi.
@@ -32,8 +33,8 @@ from deap import gp
 pset = brain.big_pset()
 
 ''' create fitnessMin and Individual '''
-creator.create("FitnessMin", base.Fitness, weights=(-1.0,))
-creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMin)
+creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 ''' toolbox '''
 toolbox = base.Toolbox()
@@ -49,14 +50,14 @@ def evalPhenotype(genome,runs):
     NOte: must return a tuple value!
     '''
     func = toolbox.compile(expr=genome)
-    seed = plant_grower.create_seed(func)
+    seed = plant_grower.seed_stem(func)
     fitness_vals = []
     for run in range(runs):
         # assign a fitness to the individual
-        phenotype = grower.grow(seed)
+        phenotype = grower.grow(seed,t_steps=40)
         health = phenotype.get_health()
         size = phenotype.number_of_elements()
-        fitness = health+size
+        fitness = size
         fitness_vals.append(fitness)
     # do some sort of combining of the fitness
     return summarize_values(fitness_vals)
@@ -67,7 +68,7 @@ def summarize_values(values):
 toolbox.register("evaluate", evalPhenotype, runs=1)
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePoint)
-toolbox.register("expr_mut", gp.genFull, min_=0, max_=2)
+toolbox.register("expr_mut", gp.genFull, min_=1, max_=4)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
@@ -76,21 +77,21 @@ toolbox.decorate("mutate", gp.staticLimit(key=operator.attrgetter("height"), max
 def main():
     random.seed(318)
 
-    pop = toolbox.population(n=5)
-    hof = tools.HallOfFame(1)
+    pop = toolbox.population(n=10)
+    hof = tools.HallOfFame(5)
 
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     stats_size = tools.Statistics(len)
-    mstats = tools.MultiStatistics(fitness=stats_fit, size=stats_size)
+    mstats = tools.MultiStatistics(fitness=stats_fit,size=stats_size)
     mstats.register("avg", np.mean)
     mstats.register("std", np.std)
     mstats.register("min", np.min)
     mstats.register("max", np.max)
 
-    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 1, stats=mstats,
+    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 4, stats=mstats,
                                    halloffame=hof, verbose=True)
     # print log
-    return pop, log, hof
+    return pop, log, hof, pset
 
 if __name__ == "__main__":
     main()

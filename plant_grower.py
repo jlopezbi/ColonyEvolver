@@ -18,6 +18,12 @@ imp.reload(world)
 def create_seed(func):
     return nodes.BrainNode(processor=func)
 
+def seed_stem(func):
+    stem = []
+    base = nodes.BrainNode(location=(0.,0.,0.), processor=func)
+    end = nodes.BrainNode(parent=base, location=(0.0,0.0,0.5), processor=func)
+    return [base,end]
+
 class Grower(object):
     def __init__(self,box,particles):
         self.box = box
