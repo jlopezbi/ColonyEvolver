@@ -175,6 +175,23 @@ def plot_processor_tree(expression):
         n.attr["label"] = l
     g.draw("cat.pdf")
 
+import matplotlib.pyplot as plt
+import networkx
+def plot_genealogy_tree(genealogy_tree, genealogy_history=None):
+    #NOTE: currently not behaving as desired!
+    graph = networkx.DiGraph(genealogy_tree)
+    #graph = graph.reverse()     # Make the grah top-down
+
+    #need to find way to store fitness for each individual in pop
+    #colors = [toolbox.evaluate(genealogy_history[i])[0] for i in graph]
+    #networkx.draw(graph, node_color=colors)
+    pos = networkx.nx_pydot.graphviz_layout(graph, prog='dot')
+    networkx.draw(graph,pos,with_labels=True) 
+    #plt.show()
+    plt.savefig('genealogy_tree.pdf',bbox_inches='tight')
+
+
+
 def generate_processor_tree(pset,minDepth,maxDepth):
     '''
     generates a function that is composed of randomly selected primitives
@@ -200,6 +217,10 @@ def save_processor_tree(tree,filename=defualt_filename):
 def resurrect_processor_tree(pset,tree_string=load_text(defualt_filename)):
     tree = gp.PrimitiveTree.from_string(tree_string,pset)
     return tree,gp.compile(tree,pset)
+
+def get_callable(expr,pset):
+    tree = gp.PrimitiveTree(expr)
+    return gp.compile(tree,pset)
 
 
 if __name__=="__main__":

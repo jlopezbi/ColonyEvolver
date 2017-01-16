@@ -19,7 +19,6 @@ def create_seed(func):
     return nodes.BrainNode(processor=func)
 
 def seed_stem(func):
-    stem = []
     base = nodes.BrainNode(location=(0.,0.,0.), processor=func)
     end = nodes.BrainNode(parent=base, location=(0.0,0.0,0.5), processor=func)
     return [base,end]
@@ -48,6 +47,12 @@ class Grower(object):
         weed_report = weed.report()
         print('BoxWorld: ' + box_report)
         print('Plant   : ' + weed_report)
+
+    def grow_from_genome(self,genome,pset,t_steps=100):
+        ''' specialized function for genetic programming '''
+        func = brain.get_callable(genome,pset)
+        seed = seed_stem(func) 
+        return self.grow(seed,t_steps)
 
     def grow(self,seed,t_steps=100):
         '''

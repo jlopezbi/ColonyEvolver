@@ -36,8 +36,10 @@ class Plant(object):
         self.bbox = base_objects.BoundingBox()
         self.nodes = []
         try:
+            prev_node = None
             for node in seed_nodes:
-                self.append_node(node)
+                self.append_node(node,prev_node)
+                prev_node = node
         except TypeError:
             self.append_node(seed_nodes)
 

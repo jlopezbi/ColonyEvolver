@@ -40,6 +40,10 @@ class BrainTestCase(unittest.TestCase):
         tree,func = brain.resurrect_processor_tree(self.pset)
         self.assertIsInstance(func,type(lambda x:1))
 
+    def test_plot_genealogy_tree(self):
+        tree = {1: (), 2: (), 3: (), 4: (1, 3), 5: (4, 3), 6: (4, 3)}
+        brain.plot_genealogy_tree(tree)
+
 
 
 
