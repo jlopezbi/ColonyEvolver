@@ -19,6 +19,27 @@ custom attributes on a a bmesh vertex:
     http://blender.stackexchange.com/questions/8992/python-api-custom-properties-for-vertices-edges-faces
 '''
 
+
+def get_obj_by_name(name):
+    ''' name is string represeting blender object '''
+    obj = bpy.data.objects[name]
+    return obj
+
+def get_mesh_by_obj_name(name):
+    '''if named object contains a mesh, return it, otherwise returns none'''
+    obj = get_obj_by_name(name)
+    if type(obj.data) == bpy.types.Mesh:
+        return obj.data
+    else: return None
+
+def map_to_each_edge_coordinates(function,mesh):
+    for edge in mesh.edges:
+        v1,v2 = edge.vertices
+        co1 = mesh.vertices[v1].co
+        co2 = mesh.vertices[v2].co
+        function(co1,co2)
+
+
 class MeshSkeletonGrower(object):
     '''
     example use case:
@@ -59,6 +80,7 @@ class MeshSkeletonGrower(object):
         self.obj = bpy.data.objects.new(self.obj_name, self.me)
         scene.objects.link(self.obj)
         return self.obj
+
 def init_mesh_object(name="Object"):
     me = bpy.data.meshes.new("Mesh")
     scene = bpy.context.scene
