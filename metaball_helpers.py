@@ -44,4 +44,8 @@ def get_average_vector(vectors):
     return np.mean(c,axis=1)
 
 
+         
+
+
+
     

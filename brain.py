@@ -177,10 +177,10 @@ def plot_processor_tree(expression):
 
 import matplotlib.pyplot as plt
 import networkx
-def plot_genealogy_tree(genealogy_tree, genealogy_history=None):
+def plot_genealogy_tree(tree, genealogy_history=None):
     #NOTE: currently not behaving as desired!
-    graph = networkx.DiGraph(genealogy_tree)
-    #graph = graph.reverse()     # Make the grah top-down
+    graph = networkx.DiGraph(tree)
+    graph = graph.reverse()     # Make the grah top-down
 
     #need to find way to store fitness for each individual in pop
     #colors = [toolbox.evaluate(genealogy_history[i])[0] for i in graph]
@@ -188,7 +188,8 @@ def plot_genealogy_tree(genealogy_tree, genealogy_history=None):
     pos = networkx.nx_pydot.graphviz_layout(graph, prog='dot')
     networkx.draw(graph,pos,with_labels=True) 
     #plt.show()
-    plt.savefig('genealogy_tree.pdf',bbox_inches='tight')
+    plt.savefig('genealogy_cat.pdf',bbox_inches='tight')
+    plt.close()
 
 
 

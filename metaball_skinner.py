@@ -22,9 +22,9 @@ class MetaballSkinner(object):
         mesh_helpers.map_to_each_edge_coordinates(self.metaball_rod_maker, self.mesh)
 
 
-def skin_mesh(mesh, resolution=.06, radius=.08):
+def skin_mesh(mesh, rez=.06, radius=.08):
     '''Function that creates 'wire-frame' of metaball rods coincident with mesh edges'''
-    obj,mball = metaball_helpers.create_metaball_obj(obj_name='MetaSkinned',metaball_name='MBall')
+    obj,mball = metaball_helpers.create_metaball_obj(resolution=rez, obj_name='MetaSkinned',metaball_name='MBall')
 
     def metaball_rod_maker(start,end):
         metaball_helpers.add_metaball_rod(mball, radius, start, end)

@@ -50,6 +50,7 @@ def evalPhenotype(genome,runs):
     '''
     NOte: must return a tuple value!
     '''
+    target_number_nodes = 13.0
     func = toolbox.compile(expr=genome)
     seed = plant_grower.seed_stem(func)
     fitness_vals = []
@@ -58,7 +59,7 @@ def evalPhenotype(genome,runs):
         phenotype = grower.grow(seed,t_steps=20)
         health = phenotype.get_health()
         size = phenotype.number_of_elements()
-        fitness = size
+        fitness = math.fabs(target_number_nodes-size)
         fitness_vals.append(fitness)
     # do some sort of combining of the fitness
     return summarize_values(fitness_vals)
@@ -66,10 +67,14 @@ def evalPhenotype(genome,runs):
 def summarize_values(values):
     return np.average(values),
 
-toolbox.register("evaluate", evalPhenotype, runs=3)
+POP_SIZE = 5
+PHENO_RUNS = 4
+N_GEN = 5
+
+toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS)
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePoint)
-toolbox.register("expr_mut", gp.genFull, min_=1, max_=4)
+toolbox.register("expr_mut", gp.genFull, min_=1, max_=7)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=17))
@@ -93,7 +98,7 @@ class EvolutionStuff(object):
 def main():
     random.seed(318)
 
-    pop = toolbox.population(n=5)
+    pop = toolbox.population(n=POP_SIZE)
     history.update(pop)
     hof = tools.HallOfFame(1)
 
@@ -105,7 +110,7 @@ def main():
     mstats.register("min", np.min)
     mstats.register("max", np.max)
 
-    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, 4, stats=mstats,
+    pop, log = algorithms.eaSimple(pop, toolbox, 0.5, 0.1, N_GEN, stats=mstats,
                                    halloffame=hof, verbose=True)
     # print log
     
