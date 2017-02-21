@@ -1,18 +1,15 @@
-import bpy
 import mathutils
 import imp
 import numpy as np
 import math,random
 import inspect
 import vector_operations
-import mesh_helpers
+#import mesh_helpers
 import numpy_helpers
-import metaball_helpers
+#import metaball_helpers
 import brain
 imp.reload(vector_operations)
 imp.reload(numpy_helpers)
-imp.reload(mesh_helpers)
-imp.reload(metaball_helpers)
 imp.reload(brain)
 
 class Node(object):
@@ -94,10 +91,12 @@ class Node(object):
         self.show_mesh_line(mesh_object)
 
     def show_mball_rod(self,mball):
-        metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
+        #metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
+        pass
 
     def show_mesh_line(self,mesh_object):
-        mesh_helpers.add_line_to_mesh_object(mesh_object,self.location,self.parent.location)
+        pass
+        #mesh_helpers.add_line_to_mesh_object(mesh_object,self.location,self.parent.location)
 
     def show_single(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)

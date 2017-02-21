@@ -1,4 +1,3 @@
-import bpy
 import numpy as np
 import random
 import math
@@ -90,9 +89,8 @@ class Particle(object):
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
-        # bpy.ops.object.empty_add(type='SPHERE',radius=self.radius,location=(x,y,z))
-        bpy.ops.surface.primitive_nurbs_surface_sphere_add(
-            radius=self.radius, location=(x, y, z))
+        #print("show not implemented yet")
+        pass
 
     def _get_random_vector_biased(self, speed):
         '''

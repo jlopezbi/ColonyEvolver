@@ -1,10 +1,6 @@
-import bpy
-import sys,os,imp
+import imp
 import numpy as np
 import mathutils
-loc = os.path.dirname(bpy.data.filepath)
-if not loc in sys.path:
-    sys.path.append(loc)
 import unittest
 import vector_operations
 imp.reload(vector_operations)
@@ -32,4 +28,7 @@ class VectorOperationsTestCase(unittest.TestCase):
         self.assertTrue(len(burst)==num)
         np.testing.assert_almost_equal(burst[1],(0.0,1.0,0.0))
 
+
+if __name__=="__main__":
+    unittest.main(verbosity=2)
 

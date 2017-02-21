@@ -1,9 +1,4 @@
-import sys,os,imp
-import bpy
-loc = os.path.dirname(bpy.data.filepath)
-if not loc in sys.path:
-    sys.path.append(loc)
-
+import imp
 import plant
 import nodes
 import brain

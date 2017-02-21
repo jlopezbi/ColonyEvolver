@@ -1,19 +1,15 @@
-import bpy
 import mathutils
 import imp
 import numpy as np
+import scipy.spatial as sp
 import math,random
 import inspect
 
 import base_objects
-import mesh_helpers
 import numpy_helpers
-import metaball_helpers
 import nodes
 imp.reload(base_objects)
 imp.reload(numpy_helpers)
-imp.reload(mesh_helpers)
-imp.reload(metaball_helpers)
 imp.reload(nodes)
 
 class Plant(object):
@@ -27,11 +23,8 @@ class Plant(object):
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
 
-        self.mesh_grower = mesh_helpers.MeshSkeletonGrower("Skeleton","mesh")
         #self.mesh_object = mesh_helpers.init_mesh_object()
         self.object_linked = None
-        #mball_obj,mball = metaball_helpers.create_metaball_obj()
-        #self.mball_obj = mball_obj
         #self.mball = mball
         self.bbox = base_objects.BoundingBox()
         self.nodes = []
@@ -70,6 +63,7 @@ class Plant(object):
         tree = self._create_spatial_tree()
         particles = particle_system.particles
         for p in particles:
+            #NOTE: working here update to match new kdtree (scipy)
             collided = tree.find_range(p.position,p.radius)
             # returns a list of tuples: (pos,index,dist)
             if not collided:
@@ -98,11 +92,15 @@ class Plant(object):
         Probably would be better to use some sort of spatial tree designed to be dynamically
         grown/updated
         '''
-        spatial_tree = mathutils.kdtree.KDTree(self.number_of_elements())
-        for i,node in enumerate(self.nodes):
-            spatial_tree.insert(node.location,i)
-        spatial_tree.balance()
+        spatial_tree = sp.cKDTree(self.get_matrix_form())
         return spatial_tree
+
+    def get_matrix_form(self):
+        vectors = self.get_node_vectors()
+        return np.stack(vectors,axis=0)
+
+    def get_node_vectors(self):
+        return [node.location for node in self.nodes]
 
     def get_node(self,node_idx):
         return self.nodes[node_idx]
@@ -113,17 +111,12 @@ class Plant(object):
         Perhaps dangerous function that hides alot!
         '''
         self.nodes.append(new_node)
-        new_node.vert = self.mesh_grower.add_vertex(new_node.location)
-        if old_node:
-            self.mesh_grower.add_edge(old_node.vert,new_node.vert)
         self.bbox.update_bbox(new_node.location)
 
     def show(self):
         #for some reason all geometry appears to be parented together in blender
-        if len(self.nodes)==1:
-            self.nodes[0].show_single(radius=.1)
-        else:
-            self.object_linked = self.mesh_grower.finalize()
+        #print("Nothing hooked up to show plant yet")
+        pass
 
     def translate(self,vector):
         '''

@@ -1,8 +1,4 @@
-import bpy
 import sys,os,imp
-loc = os.path.dirname(bpy.data.filepath)
-if not loc in sys.path:
-    sys.path.append(loc)
 import unittest
 import numpy as np
 import mathutils
@@ -48,4 +44,6 @@ class NodeTestCase(unittest.TestCase):
         node = DerivedNode(parent=None,location=[1],a=2)
         new_node = node.make_self_child(location=[1.1],a=2)
 
+if __name__=="__main__":
+    unittest.main(verbosity=2)
 

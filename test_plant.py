@@ -1,8 +1,4 @@
-import bpy
 import sys,os,imp
-loc = os.path.dirname(bpy.data.filepath)
-if not loc in sys.path:
-    sys.path.append(loc)
 import unittest
 import numpy as np
 import mathutils
@@ -59,7 +55,5 @@ class PlantTestCase(unittest.TestCase):
         vec = self.plant._get_new_node_position(p_pos,node_idx=1)
         np.testing.assert_equal(vec,(1.5,1.5,.5))
 
-
-
 if __name__=="__main__":
-    unittest.main(exit=False)
+    unittest.main(verbosity=2)
