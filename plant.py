@@ -60,16 +60,22 @@ class Plant(object):
         first iteration; knows quite a bit about particle system!
         creates new child nodes fromm nodes that intersect nutrients
         '''
+        #NOTE: currently working here to use scipy!
         tree = self._create_spatial_tree()
         particles = particle_system.particles
         for p in particles:
-            #NOTE: working here update to match new kdtree (scipy)
-            collided = tree.find_range(p.position,p.radius)
-            # returns a list of tuples: (pos,index,dist)
-            if not collided:
+            #NOTE: might try out query_ball_tree
+            #may be more suited to this task
+            neighbors = tree.query_ball_point(p.position,p.radius)
+            #neighbors is an array of lists of indices 
+            #that correspond to points in the tree.
+            #in this case that means plant nodes
+            if not neighbors:
                 continue
             else:
-                pos_of_node,index,dist = collided[0]
+
+                index = neighbors[0]
+                #for now just take first neighbor, to simplify stuff
                 #new_node = self.spawn_new_node(p.position,index,dist)
                 collided_node = self.get_node(index)
                 new_nodes = collided_node.respond_to_collision(self,p.position,p.radius)
@@ -86,11 +92,7 @@ class Plant(object):
 
     def _create_spatial_tree(self):
         '''
-        NOTE: the reliance here on mathutils.kdtree is one of the major
-        blender dependencies. However, KDTree functionality is readily available from
-        other libraries
-        Probably would be better to use some sort of spatial tree designed to be dynamically
-        grown/updated
+        creates spatial tree used for efficiently computing collisions
         '''
         spatial_tree = sp.cKDTree(self.get_matrix_form())
         return spatial_tree
