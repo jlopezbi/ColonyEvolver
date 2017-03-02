@@ -95,9 +95,10 @@ class Node(object):
         y = stack[1]
         z = stack[2]
         #draw line
-        mlab.plot3d(x, y, z, tube_radius=.012)
+        #mlab.plot3d(x, y, z, tube_radius=.012)
+        mlab.plot3d(x, y, z, line_width=1.0)
         #draw dot
-        #mlab.points3d(x[0],y[0],z[0])
+        mlab.points3d(x[0],y[0],z[0], mode='sphere', scale_factor=.2)
 
 
     def show_mball_rod(self,mball):
