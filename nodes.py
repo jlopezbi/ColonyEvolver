@@ -1,4 +1,4 @@
-import mathutils
+#import mathutils
 import imp
 import numpy as np
 import matplotlib.pyplot as plt
@@ -26,7 +26,6 @@ class Node(object):
         else:
             assert type(parent) == Node or inspect.getmro(type(parent))[-2] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
             self.parent = parent
-        #self.location = mathutils.Vector(location )
         self.location = np.array(location )
         self.radius = .08
         self._post_initialize(kwargs)
@@ -291,16 +290,20 @@ class BranchyNode(Node):
         return self.location + o
 
     def get_branch_ortho_rand(self,plant):
+        #NOTE: need to replace with vector_operations code
+        '''
         internode_vec = mathutils.Vector(self.get_parent_internode_vec(plant))
         ortho_rand = internode_vec.orthogonal()
         ortho_rand.normalize()
         angle = random.uniform(0.0,math.pi*2)
         ortho_rand.rotate(self.create_rotation_quat(internode_vec,angle))
         n = ortho_rand * internode_vec.length  
-        return n
+        '''
+        pass
 
     def create_rotation_quat(self,vector,angle):
-        return mathutils.Quaternion(vector,angle)
+        #return mathutils.Quaternion(vector,angle)
+        pass
 
 #TODO: figure out how to make a node lineage that has one type of processor
 #also make sure that processor is getting regenerated when I want it to!

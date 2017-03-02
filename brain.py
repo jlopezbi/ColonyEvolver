@@ -1,3 +1,4 @@
+from __future__ import print_function
 import sys
 sys.path.append('/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/')
 #TODO: if want other people to use this figure out how to get them this dependency!
@@ -95,7 +96,7 @@ def big_pset():
     pset.addPrimitive(np.dot,two_in,float)
     pset.addPrimitive(np.cross,two_in,vec)
     pset.addPrimitive(mean_vec,two_in,vec )
-    pset.addPrimitive(vector_operations.rotate_vec_np,[vec ,vec ,float],vec )
+    pset.addPrimitive(vector_operations.rotate_vec,[vec ,vec ,float],vec )
     pset.addPrimitive(scale,[vec ,float],vec )
     pset.addPrimitive(np.linalg.norm, [vec ],float)
     pset.addPrimitive(angle_between,[vec ,vec ],float)
@@ -131,7 +132,7 @@ def make_vec_pset():
     #pset.addPrimitive(np.maximum,two_in,array_type)
     #pset.addPrimitive(np.minimum,two_in,array_type)
     pset.addPrimitive(mean_vec,two_in,array_type)
-    pset.addPrimitive(vector_operations.rotate_vec_np,[array_type,array_type,float],array_type)
+    pset.addPrimitive(vector_operations.rotate_vec,[array_type,array_type,float],array_type)
     pset.addPrimitive(scale,[array_type,float],array_type)
     pset.addPrimitive(np.linalg.norm, [array_type],float)
 

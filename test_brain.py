@@ -1,7 +1,6 @@
 import sys,os,imp
 import unittest
 import numpy as np
-import mathutils
 import brain
 imp.reload(brain)
 
