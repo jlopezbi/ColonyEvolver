@@ -1,6 +1,7 @@
 import mathutils
 import imp
 import numpy as np
+import matplotlib.pyplot as plt
 import math,random
 import inspect
 import vector_operations
@@ -86,9 +87,18 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self,mball,mesh_object):
-        #self.show_mball_rod(mball)
-        self.show_mesh_line(mesh_object)
+    def show(self,ax):
+        p1 = self.location
+        p2 = self.parent.location
+        stack = np.stack([p1,p2]).transpose()
+        x = stack[0]
+        y = stack[1]
+        z = stack[2]
+        #draw line
+        ax.plot(x,y,z, 'm')
+        #draw dot
+        ax.scatter(x[0],y[0],z[0], marker='o')
+
 
     def show_mball_rod(self,mball):
         #metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
@@ -145,7 +155,7 @@ class NodeAwareOfHistory(Node):
     '''
     def _post_initialize(self,kwargs):
         self.distance_from_branch_node = kwargs['lineage_distance']
-        self.branch_distance = 20 #nodes from branc point before a new branch point occurs
+        self.branch_distance = 5 #nodes from branc point before a new branch point occurs
         self.data = []
         self.num_particles_to_grow = 20
         self.internode_weight = .9
@@ -208,7 +218,7 @@ class Bud(Node):
 class BudSub(Node):
     def _post_initialize(self,args):
         self.data = []
-        self.num_particles_to_grow = 3
+        self.num_particles_to_grow = 40
 
     def _specialized_respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
@@ -217,8 +227,8 @@ class BudSub(Node):
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
-            return [BranchyNode(parent=self,location =pos)]
-            #return [Bud(parent=self,location =pos)]
+            #return [BranchyNode(parent=self,location =pos)]
+            return [Bud(parent=self,location =pos)]
         else:
             return None
 
@@ -229,7 +239,7 @@ class StarBurstBranchNode(Node):
     def _post_initialize(self,kwargs):
         self.hits = 0
         self.num_particles_to_grow = 15
-        self.number_branches = 2
+        self.number_branches = 7
         self.is_alive = True
 
     def _specialized_respond_to_collision(self,plant,position,radius):

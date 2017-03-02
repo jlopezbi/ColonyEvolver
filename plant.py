@@ -2,8 +2,10 @@ import mathutils
 import imp
 import numpy as np
 import scipy.spatial as sp
+import matplotlib.pyplot as plt
 import math,random
 import inspect
+import visualization_base as vb
 
 import base_objects
 import numpy_helpers
@@ -115,10 +117,17 @@ class Plant(object):
         self.nodes.append(new_node)
         self.bbox.update_bbox(new_node.location)
 
-    def show(self):
-        #for some reason all geometry appears to be parented together in blender
+    def show(self,ax=None):
         #print("Nothing hooked up to show plant yet")
-        pass
+        had_ax = True
+        if ax == None:
+            ax = vb.init_fig()
+            had_ax = False
+        for node in self.nodes:
+            node.show(ax)
+
+        if not had_ax:
+            vb.show_fig(ax)
 
     def translate(self,vector):
         '''

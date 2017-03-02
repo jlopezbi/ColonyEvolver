@@ -34,12 +34,6 @@ class BoundingBox(object):
         assert axis in (0,1,2), 'axis was {}, must be one of 0 (x) 1 (y) or 2 (z)'.format(axis)
         return self.bbox_lower[axis], self.bbox_upper[axis]
 
-    def box_seq(self):
-        points = np.array(self.collect_points())
-        i = [0,1,2,3,0,4,5,1,5,6,2,6,7,3,7,4]
-        seq = points[i]
-        return seq
-
     def show(self,ax=None):
         imp.reload(visualization_base)
         ax = visualization_base.init_fig()
