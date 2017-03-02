@@ -9,6 +9,7 @@ import visualization_base as vb
 import base_objects
 import numpy_helpers
 import nodes
+import mayavi.mlab as mlab
 imp.reload(base_objects)
 imp.reload(numpy_helpers)
 imp.reload(nodes)
@@ -116,17 +117,12 @@ class Plant(object):
         self.nodes.append(new_node)
         self.bbox.update_bbox(new_node.location)
 
-    def show(self,ax=None):
+    def show(self):
         #print("Nothing hooked up to show plant yet")
-        had_ax = True
-        if ax == None:
-            ax = vb.init_fig()
-            had_ax = False
         for node in self.nodes:
-            node.show(ax)
+            node.show()
+        mlab.show()
 
-        if not had_ax:
-            vb.show_fig(ax)
 
     def translate(self,vector):
         '''

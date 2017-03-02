@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
+import mayavi.mlab as mlab
 '''
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
@@ -21,15 +22,10 @@ plt.show()
 # figure out how to clamp range of plot
 
 def init_fig():
-    plt.ion()
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.set_aspect('equal')
-    return ax
+    pass
 
 def show_fig(ax):
-    set_axes_equal(ax)
-    plt.show()
+    mlab.show()
 
 def box_seq(points):
     ''' the hardcoded sequence is set so that

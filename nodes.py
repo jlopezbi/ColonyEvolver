@@ -9,6 +9,7 @@ import vector_operations
 import numpy_helpers
 #import metaball_helpers
 import brain
+import mayavi.mlab as mlab
 imp.reload(vector_operations)
 imp.reload(numpy_helpers)
 imp.reload(brain)
@@ -86,7 +87,7 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self,ax):
+    def show(self):
         p1 = self.location
         p2 = self.parent.location
         stack = np.stack([p1,p2]).transpose()
@@ -94,9 +95,9 @@ class Node(object):
         y = stack[1]
         z = stack[2]
         #draw line
-        ax.plot(x,y,z, 'm')
+        mlab.plot3d(x, y, z, tube_radius=.012)
         #draw dot
-        ax.scatter(x[0],y[0],z[0], marker='o')
+        #mlab.points3d(x[0],y[0],z[0])
 
 
     def show_mball_rod(self,mball):
