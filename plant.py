@@ -117,12 +117,15 @@ class Plant(object):
         self.nodes.append(new_node)
         self.bbox.update_bbox(new_node.location)
 
-    def show(self):
-        #print("Nothing hooked up to show plant yet")
+    def show(self, fig=None):
+        auto_show = False
+        if fig==None:
+            auto_show = True
+            fig = vb.init_fig()
         for node in self.nodes:
-            node.show()
-        mlab.show()
-
+            node.show(fig)
+        if auto_show:
+            vb.show_fig()
 
     def translate(self,vector):
         '''

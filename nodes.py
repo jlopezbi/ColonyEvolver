@@ -87,7 +87,7 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self):
+    def show(self,fig):
         p1 = self.location
         p2 = self.parent.location
         stack = np.stack([p1,p2]).transpose()
@@ -96,9 +96,9 @@ class Node(object):
         z = stack[2]
         #draw line
         #mlab.plot3d(x, y, z, tube_radius=.012)
-        mlab.plot3d(x, y, z, line_width=1.0)
+        mlab.plot3d(x, y, z, figure=fig, line_width=1.0)
         #draw dot
-        mlab.points3d(x[0],y[0],z[0], mode='sphere', scale_factor=.2)
+        mlab.points3d(x[0],y[0],z[0], figure=fig, mode='sphere',scale_factor=.08)
 
 
     def show_mball_rod(self,mball):

@@ -216,7 +216,9 @@ def save_processor_tree(tree,filename=defualt_filename):
     with open(filename, "w") as text_file:
         print(str(tree), file=text_file)
 
-def resurrect_processor_tree(pset,tree_string=load_text(defualt_filename)):
+def resurrect_processor_tree(pset,tree_string=None):
+    if tree_string==None:
+        tree_string = load_text(defualt_filename)
     tree = gp.PrimitiveTree.from_string(tree_string,pset)
     return tree,gp.compile(tree,pset)
 

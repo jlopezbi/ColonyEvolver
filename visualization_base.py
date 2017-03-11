@@ -22,9 +22,10 @@ plt.show()
 # figure out how to clamp range of plot
 
 def init_fig():
-    pass
+    fig = mlab.figure()
+    return fig
 
-def show_fig(ax):
+def show_fig():
     mlab.show()
 
 def box_seq(points):

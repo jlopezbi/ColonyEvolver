@@ -1,4 +1,6 @@
 import imp
+import cPickle
+
 import plant
 import nodes
 import brain
@@ -17,6 +19,14 @@ def seed_stem(func):
     base = nodes.BrainNode(location=(0.,0.,0.), processor=func)
     end = nodes.BrainNode(parent=base, location=(0.0,0.0,0.5), processor=func)
     return [base,end]
+
+def save(colony):
+    #not tested yet!
+    pickle.dump(colony, open('pickled_colony.p', 'wb'))
+
+def load(filename):
+    #not tested yet! 
+    pickle.load(open(filename, 'rb'))
 
 class Grower(object):
     def __init__(self,box,particles):
@@ -54,15 +64,15 @@ class Grower(object):
         seed is an iterable of node instances, who already have connections between
         them
         '''
-        weed = plant.Plant(seed)
+        colony = plant.Plant(seed)
         self._intialize_to_plant(weed)
         for i in range(t_steps):
             self.particles.move_particles()
             self.particles.re_spawn_escaped_particles()
-            weed.collide_with(self.particles)
-            weed.update_time_for_all_nodes()
+            colony .collide_with(self.particles)
+            colony .update_time_for_all_nodes()
             self.box.resize_to_fit(weed.bbox.bbox_lower,weed.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
             #self.report_growth(weed)
-        return weed
+        return colony 
 
 
