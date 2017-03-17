@@ -169,8 +169,8 @@ class NodeAwareOfHistory(Node):
         self.branch_distance = 5 #nodes from branc point before a new branch point occurs
         self.data = []
         self.num_particles_to_grow = 20
-        self.internode_weight = .9
-        self.collision_weight = .1
+        self.internode_weight = .7
+        self.collision_weight = .3
         self.is_alive = True
 
     def _specialized_respond_to_collision(self,plant,position,radius):

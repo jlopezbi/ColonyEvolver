@@ -2,24 +2,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import numpy as np
 import mayavi.mlab as mlab
-'''
-fig = plt.figure()
-ax = fig.add_subplot(111, projection='3d')
-x = [1,2]
-y = [1,2]
-z = [1,2]
-#    1,2,3,4,1,5,1
-x = [0,1,1,0,0,0,0]
-y = [0,0,1,1,0,0,0]
-z = [0,0,0,0,0,1,0]
-ax.plot_wireframe(x, y, z )
-
-#ax.plot(x, y, z)
-plt.show()
-'''
-
-#TODO
-# figure out how to clamp range of plot
 
 def init_fig():
     fig = mlab.figure()
@@ -29,6 +11,10 @@ def show_fig():
     mlab.show()
 
 def make_lines(x, y, z, connections):
+    '''mayavi setup for drawing many lines.
+    x, y, z are numpy arrays of all points
+    connections contains lists of indices into the x,y,z arrays
+    specifiying lines'''
     points = mlab.points3d(x, y, z,
                           scale_mode='none',
                           scale_factor=0.03)
