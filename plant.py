@@ -109,6 +109,9 @@ class Plant(object):
     def get_node(self,node_idx):
         return self.nodes[node_idx]
 
+    def get_index_for_node(self,node):
+        return self.nodes.index(node)
+
     def append_node(self,new_node,old_node=None):
         '''
         adds new node, then adds mesh, then updates bbox
@@ -117,15 +120,44 @@ class Plant(object):
         self.nodes.append(new_node)
         self.bbox.update_bbox(new_node.location)
 
-    def show(self, fig=None):
+    def show_indvidual_calls(self, fig=None):
+        '''depricated, less efficient drawing'''
+        for node in self.nodes:
+            node.show(fig)
+
+    def show(self,fig=None):
         auto_show = False
         if fig==None:
             auto_show = True
             fig = vb.init_fig()
-        for node in self.nodes:
-            node.show(fig)
+        self.show_lines()
         if auto_show:
             vb.show_fig()
+
+    def show_lines(self):
+        x, y, z, connections = self.collect_line_data()
+        vb.make_lines(x, y, z, connections)
+    
+    def collect_line_data(self):
+        x = []
+        y = []
+        z = []
+        connections = []
+        for node_idx, node in enumerate(self.nodes):
+            x_loc, y_loc, z_loc = node.location
+            x.append(x_loc)
+            y.append(y_loc)
+            z.append(z_loc)
+            parent_idx = self.get_index_for_node(node.parent)
+            connections.append([parent_idx, node_idx])
+        x = np.array(x)
+        y = np.array(y)
+        z = np.array(z)
+        connections = np.array(connections)
+        return x, y, z, connections
+
+       
+        
 
     def translate(self,vector):
         '''

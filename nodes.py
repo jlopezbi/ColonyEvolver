@@ -87,19 +87,29 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self,fig):
+    def get_line(self):
         p1 = self.location
         p2 = self.parent.location
-        stack = np.stack([p1,p2]).transpose()
-        x = stack[0]
-        y = stack[1]
-        z = stack[2]
+        stack = np.stack([p2,p1],axis=1)
+        return stack
+        #x = stack[0]
+        #y = stack[1]
+        #z = stack[2]
+        #return x, y, z
+
+# if doing many calls to plot3d is less efficient than doing
+# one call what would be the hint? I really think it makes sense to simply try both out!
+
+    def show(self,fig):
+        coords = self.get_line()
+        x = coords[0]
+        y = coords[1]
+        z = coords[2]
         #draw line
         #mlab.plot3d(x, y, z, tube_radius=.012)
         mlab.plot3d(x, y, z, figure=fig, line_width=1.0)
         #draw dot
-        mlab.points3d(x[0],y[0],z[0], figure=fig, mode='sphere',scale_factor=.08)
-
+        #mlab.points3d(x[0],y[0],z[0], figure=fig, mode='sphere',scale_factor=.08)
 
     def show_mball_rod(self,mball):
         #metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)

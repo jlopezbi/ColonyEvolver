@@ -28,6 +28,16 @@ def init_fig():
 def show_fig():
     mlab.show()
 
+def make_lines(x, y, z, connections):
+    points = mlab.points3d(x, y, z,
+                          scale_mode='none',
+                          scale_factor=0.03)
+    points.mlab_source.dataset.lines = connections
+    points.mlab_source.reset()
+    mlab.pipeline.surface(points,
+                          representation='wireframe',
+                          line_width = 3)
+
 def box_seq(points):
     ''' the hardcoded sequence is set so that
     if one draws a line between conscutive pairs of points, and the points are 0,1,2,3 for the base of a box, and 4,5,6,7 for the top, on draws a wire-frame box'''
@@ -42,7 +52,7 @@ def draw_box(points, ax):
     ax.plot_wireframe(sequence[0], sequence[1], sequence[2])
 
 def set_axes_equal(ax):
-    '''Make axes of 3D plot have equal scale so that spheres appear as spheres,
+    '''MatplotLib Make axes of 3D plot have equal scale so that spheres appear as spheres,
     cubes as cubes, etc..  This is one possible solution to Matplotlib's
     ax.set_aspect('equal') and ax.axis('equal') not working for 3D.
 
@@ -68,4 +78,6 @@ def set_axes_equal(ax):
     ax.set_xlim3d([x_middle - plot_radius, x_middle + plot_radius])
     ax.set_ylim3d([y_middle - plot_radius, y_middle + plot_radius])
     ax.set_zlim3d([z_middle - plot_radius, z_middle + plot_radius])
+
+
 

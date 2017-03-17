@@ -65,14 +65,23 @@ class Grower(object):
         them
         '''
         colony = plant.Plant(seed)
-        self._intialize_to_plant(weed)
+        self._intialize_to_plant(colony)
         for i in range(t_steps):
             self.particles.move_particles()
             self.particles.re_spawn_escaped_particles()
             colony .collide_with(self.particles)
             colony .update_time_for_all_nodes()
-            self.box.resize_to_fit(weed.bbox.bbox_lower,weed.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
-            #self.report_growth(weed)
+            self.box.resize_to_fit(colony.bbox.bbox_lower,colony.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
+            #self.report_growth(colony)
         return colony 
+
+def defualt_plant():
+    n0 = nodes.Node(location=(0.0, 0.0, 0.0))
+    p = plant.Plant([n0])
+    n1 = nodes.Node(parent=n0, location=(0.0, 0.0, 5.0))
+    p.append_node(n1,n0)
+    n2 = nodes.Node(parent=n0, location=(4.0, 0.0, 5.0))
+    p.append_node(n2,n0)
+    return p
 
 
