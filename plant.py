@@ -58,11 +58,40 @@ class Plant(object):
         return np.average(scores)
 
     def collide_with(self,particle_sys):
-        self.collide_with_array_version(particle_sys)
+        #self.collide_with_array_node_view(particle_sys)
         #self.collide_with_single_version(particle_sys)
+        self.collide_with_arr_particle_view(particle_sys)
 
-    def collide_with_array_version(self,particle_sys):
-        '''test if faster'''
+    def collide_with_arr_particle_view(self,particle_sys):
+        '''
+        fastest thus far method for computing collisions
+        computes collisions for particles. For each collisions set of a particle,
+        arbitrarily chooses a node to grow.
+        '''
+        particles_tree = sp.cKDTree(particle_sys.get_matrix_form())
+        colony_tree = sp.cKDTree(self.get_matrix_form())
+        radius = particle_sys.radius
+        neighbor_array = particles_tree.query_ball_tree(colony_tree, radius)
+        for i,nodes in enumerate(neighbor_array):
+            if nodes:
+                p = particle_sys.get_particle(i)
+                n_idx = nodes[0] #arbitrary choice
+                position = particles_tree.data[i]
+                collided_node = self.nodes[n_idx]
+                new_nodes = collided_node.respond_to_collision(self,position,radius)
+                if new_nodes:
+                    for node in new_nodes:
+                        self.append_node(node, collided_node)
+                particle_sys.re_spawn_particle(p)
+
+    def collide_with_array_node_view(self,particle_sys):
+        '''test if faster.'''
+        #There is an inherent diffuclty here: nothing stops two nodes from being
+        #fed by the same particle. In the other version collided particles get respawned.
+        #here the data of the collision remains unchanged!
+        #would make sense to prefer node that is closest to center of particle!
+        #IDEA: flip the collision, so that is from the particles perspective.
+        #foreach particle decide which node gets fed, and then discount others from feeding
         colony_tree = collisions.create_spatial_tree(self.get_matrix_form())
         particles_tree = collisions.create_spatial_tree(particle_sys.get_matrix_form())
         radius = particle_sys.radius
@@ -72,7 +101,8 @@ class Plant(object):
                 collided_node = self.nodes[i]
                 p_idx = positions[0] #arbitrarily grab first particleindex
                 p = particle_sys.get_particle(p_idx)
-                new_nodes = collided_node.respond_to_collision(self, p.position, p.radius)
+                position = particles_tree.data[p_idx]
+                new_nodes = collided_node.respond_to_collision(self, position, p.radius)
                 if new_nodes:
                     for node in new_nodes:
                         self.append_node(node, collided_node)
@@ -86,8 +116,6 @@ class Plant(object):
         tree = self._create_spatial_tree()
         particles = particle_system.particles
         for p in particles:
-            #NOTE: might try out query_ball_tree
-            #may be more suited to this task
             neighbors = tree.query_ball_point(p.position,p.radius)
             #neighbors is an array of lists of indices 
             #that correspond to points in the tree.

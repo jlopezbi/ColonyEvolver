@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 import collisions
 import imp
 imp.reload(collisions)
@@ -13,15 +14,16 @@ m2 =[[0.0, 0.0, 3.0],
     ]
 
 
+
 class dummy_matrixable(object):
     def __init__(self,array):
         self.array = array
 
     def get_matrix_form(self):
-        return self.array
-
+        return np.array(self.array)
 dummy1 = dummy_matrixable(m1)
 dummy2 = dummy_matrixable(m2)
+
 
 class CollisionsTestCase(unittest.TestCase):
     def setUp(self):
