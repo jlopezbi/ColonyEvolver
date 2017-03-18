@@ -7,8 +7,6 @@ https://github.com/DEAP/deap/blob/a90d3d599aa789a0083f5bc299803ec32d491cbd/examp
 '''
 
 import sys, imp
-sys.path.append('/Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/site-packages/')
-#TODO: if want other people to use this figure out how to get them this dependency!
 import deap.gp as gp
 import pygraphviz as pgv
 import numpy as np
@@ -16,10 +14,10 @@ import numpy as np
 import math, random, operator
 import uuid
 
-import plant_grower 
+import grower 
 import vector_operations
 import brain
-imp.reload(plant_grower)
+imp.reload(grower)
 imp.reload(vector_operations)
 imp.reload(brain)
 
@@ -33,7 +31,7 @@ from deap import gp
 pset = brain.big_pset()
 
 ''' create fitnessMin and Individual '''
-creator.create("FitnessMax", base.Fitness, weights=(1.0,))
+creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 ''' toolbox '''
@@ -45,18 +43,18 @@ toolbox.register("compile", gp.compile, pset=pset)
 
 
 ''' fitness evaulator '''
-grower = plant_grower.Grower.create_default_grower()
+runner = grower.Grower.create_default_grower()
 def evalPhenotype(genome,runs):
     '''
     NOte: must return a tuple value!
     '''
     target_number_nodes = 13.0
     func = toolbox.compile(expr=genome)
-    seed = plant_grower.seed_stem(func)
+    seed = grower.seed_stem(func)
     fitness_vals = []
     for run in range(runs):
         # assign a fitness to the individual
-        phenotype = grower.grow(seed,t_steps=20)
+        phenotype = runner.grow(seed,t_steps=20)
         health = phenotype.get_health()
         size = phenotype.number_of_elements()
         fitness = math.fabs(target_number_nodes-size)
@@ -67,9 +65,9 @@ def evalPhenotype(genome,runs):
 def summarize_values(values):
     return np.average(values),
 
-POP_SIZE = 5
-PHENO_RUNS = 4
-N_GEN = 5
+POP_SIZE = 20
+PHENO_RUNS = 2
+N_GEN = 2
 
 toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS)
 toolbox.register("select", tools.selTournament, tournsize=3)

@@ -6,13 +6,15 @@ import math,random
 import inspect
 import visualization_base as vb
 
+import collisions
 import base_objects
 import numpy_helpers
 import nodes
 import mayavi.mlab as mlab
-imp.reload(base_objects)
-imp.reload(numpy_helpers)
-imp.reload(nodes)
+imp.reload(collisions)
+#imp.reload(base_objects)
+#imp.reload(numpy_helpers)
+#imp.reload(nodes)
 
 class Plant(object):
     """plant composed of nodes, a bounding box
@@ -55,14 +57,32 @@ class Plant(object):
             scores.append(n.health)
         return np.average(scores)
 
-    def collide_with(self,particle_system):
+    def collide_with(self,particle_sys):
+        self.collide_with_array_version(particle_sys)
+        #self.collide_with_single_version(particle_sys)
+
+    def collide_with_array_version(self,particle_sys):
+        '''test if faster'''
+        colony_tree = collisions.create_spatial_tree(self.get_matrix_form())
+        particles_tree = collisions.create_spatial_tree(particle_sys.get_matrix_form())
+        radius = particle_sys.radius
+        neighbor_array = collisions.collide(colony_tree, particles_tree, radius)
+        for i,positions in enumerate(neighbor_array):
+            if positions:
+                collided_node = self.nodes[i]
+                p_idx = positions[0] #arbitrarily grab first particleindex
+                p = particle_sys.get_particle(p_idx)
+                new_nodes = collided_node.respond_to_collision(self, p.position, p.radius)
+                if new_nodes:
+                    for node in new_nodes:
+                        self.append_node(node, collided_node)
+                particle_sys.re_spawn_particle(p)
+
+    def collide_with_single_version(self,particle_system):
         '''
-        NOTE: this is where an important entanglement between plant
-        and nutrients occurs!
-        first iteration; knows quite a bit about particle system!
-        creates new child nodes fromm nodes that intersect nutrients
+        find collisions of self with particle_system,
+        send message to collided nodes to respond to collision
         '''
-        #NOTE: currently working here to use scipy!
         tree = self._create_spatial_tree()
         particles = particle_system.particles
         for p in particles:
@@ -100,6 +120,7 @@ class Plant(object):
         return spatial_tree
 
     def get_matrix_form(self):
+        '''returns matrix of points making up colony, shape: Npoints x 3 (x,y,z)'''
         vectors = self.get_node_vectors()
         return np.stack(vectors,axis=0)
 

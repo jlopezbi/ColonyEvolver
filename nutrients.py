@@ -20,6 +20,15 @@ class ParticleSystem(object):
         self.particles = []
         self.set_initial_positions()
 
+    def get_particle(self, idx):
+        return self.particles[idx]
+
+    def get_matrix_form(self):
+        return np.stack(self.get_particle_vectors(), axis=0)
+
+    def get_particle_vectors(self):
+        return [particle.position for particle in self.particles]
+
     def set_initial_positions(self):
         #perhaps adding all the particles to the top plane and the running
         #the simulation causes some odd stuff to happen right at the beginning

@@ -69,8 +69,8 @@ class Grower(object):
         for i in range(t_steps):
             self.particles.move_particles()
             self.particles.re_spawn_escaped_particles()
-            colony .collide_with(self.particles)
-            colony .update_time_for_all_nodes()
+            colony.collide_with(self.particles)
+            colony.update_time_for_all_nodes()
             self.box.resize_to_fit(colony.bbox.bbox_lower,colony.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
             #self.report_growth(colony)
         return colony 
