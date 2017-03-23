@@ -332,7 +332,8 @@ class BrainNode(Node):
         if not parent_to_node.any():
             return None
         new_offset = self.processor(node_to_sphere,parent_to_node)
-        if not new_offset.any():
+        z = np.array([0.0, 0.0, 0.0])
+        if np.isclose(z,new_offset,atol=.01).all() or np.isnan(new_offset).any():
             return None
         new_position = self.location + new_offset
         return [BrainNode(parent=self,location=new_position,processor=self.processor)]
