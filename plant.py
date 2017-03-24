@@ -16,11 +16,13 @@ imp.reload(collisions)
 #imp.reload(numpy_helpers)
 #imp.reload(nodes)
 
+
 class Plant(object):
     """plant composed of nodes, a bounding box
     seed_nodes = iterable collection of obects derived from Node
     Note that seed_nodes must already have parent relations setup amongst themselves
     In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
+
 
     def __init__(self,seed_nodes):
         #IDEA: could have plant be an extended bmesh!
@@ -199,14 +201,17 @@ class Plant(object):
             z.append(z_loc)
             parent_idx = self.get_index_for_node(node.parent)
             connections.append([parent_idx, node_idx])
+        #Cast to numpy arrays
         x = np.array(x)
         y = np.array(y)
         z = np.array(z)
         connections = np.array(connections)
         return x, y, z, connections
 
-       
-        
+    def save_line_data(self):
+        x,y,z,c = self.collect_line_data()
+        data = {'x':x, 'y':y, 'z':z, 'connections':c}
+        np.save('line_data.npy',data)
 
     def translate(self,vector):
         '''

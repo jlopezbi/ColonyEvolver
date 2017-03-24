@@ -105,7 +105,7 @@ class EvolutionStuff(object):
         self.pset = pset
 
 def main():
-    random.seed(318)
+    random.seed()
 
     pop = toolbox.population(n=POP_SIZE)
     history.update(pop)
