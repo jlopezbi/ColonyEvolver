@@ -1,7 +1,17 @@
 import bpy
 import bmesh
 import numpy as np
-from collections import namedtuple  
+
+def file_to_skeleton(file_name):
+    '''note: this only works when the file is a .npy 
+    and was saved as an array of a dict. The dict contains 
+    the x, y, z, and connections fields'''
+    raw = load(file_name)
+    x,y,z,c = convert_data(raw)
+    make_mesh_skeleton(x,y,z,c)
+
+def get_full_path(file_name):
+    pass
 
 def load(file_name='line_data.npy'):
     data = np.load(file_name,encoding='bytes')
@@ -9,21 +19,22 @@ def load(file_name='line_data.npy'):
     return data[()]
 
 def convert_data(data):
+    '''
+    data is loaded in as byte stream, so I guess that is 
+    why keys are 'b'
+    '''
     x = data[b'x']
     y = data[b'y']
     z = data[b'z']
     connections = data[b'connections']
     return x, y, z, connections
 
-def get_full_path(file_name):
-    pass
-
 def make_mesh_skeleton(x,y,z,connections):
-    grower = MeshSkeletonGrower()
-    for i,a in enumerate(x):
-        vert = ( x[i], y[i], z[i] )
-        v = grower.add_vertex(vert)
-    grower.bm.verts.ensure_lookup_table()
+    grower = MeshSkeletonGrower(obj_name='Skeleton',mesh_name='SkeletonMesh')
+    for u,v,w in zip(x,y,z):
+        vert = ( u, v, w )
+        grower.add_vertex(vert)
+    grower.prep_for_edge_adding()
     for connection in connections:
         idx1 = connection[0]
         idx2 = connection[1]    
@@ -50,9 +61,6 @@ class MeshSkeletonGrower(object):
         self.me = bpy.data.meshes.new(self.mesh_name)
         self.bm = bmesh.new()
 
-    def _prepare_to_add_geom(self):
-        return bmesh.from_edit_mesh(self.me)
-    
     def add_vertex(self,location):
         return self.bm.verts.new(location)
 
@@ -62,7 +70,10 @@ class MeshSkeletonGrower(object):
             new_vert = self.bm.verts.new(vert)
             bm_verts.append(new_vert)
         return bm_verts
-    
+
+    def prep_for_edge_adding(self):
+        self.bm.verts.ensure_lookup_table()
+
     def add_edge(self,v1,v2):
         return self.bm.edges.new((v1,v2))
 
