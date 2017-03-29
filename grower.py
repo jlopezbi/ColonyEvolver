@@ -51,7 +51,7 @@ class Grower(object):
         box_report = self.box.report()
         weed_report = weed.report()
         print('BoxWorld: ' + box_report)
-        print('Plant   : ' + weed_report)
+        print('Colony   : ' + weed_report)
 
     def grow_from_genome(self,genome,pset,t_steps=100):
         ''' specialized function for genetic programming '''
@@ -64,7 +64,7 @@ class Grower(object):
         seed is an iterable of node instances, who already have connections between
         them
         '''
-        colony = plant.Plant(seed)
+        colony = plant.Colony(seed)
         self._intialize_to_plant(colony)
         for i in range(t_steps):
             self.particles.move_particles()
@@ -77,7 +77,7 @@ class Grower(object):
 
 def defualt_plant():
     n0 = nodes.Node(location=(0.0, 0.0, 0.0))
-    p = plant.Plant([n0])
+    p = plant.Colony([n0])
     n1 = nodes.Node(parent=n0, location=(0.0, 0.0, 5.0))
     p.append_node(n1,n0)
     n2 = nodes.Node(parent=n0, location=(4.0, 0.0, 5.0))

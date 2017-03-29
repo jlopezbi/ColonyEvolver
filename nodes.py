@@ -30,7 +30,7 @@ class Node(object):
         self.location = np.array(location )
         self.radius = .08
         self._post_initialize(kwargs)
-        self.health = 10
+        self.health = 5
 
     def _post_initialize(self,kwargs):
         pass
@@ -61,7 +61,7 @@ class Node(object):
         '''
         function called by simulation to let the node know that time has passed
         '''
-        self.health -=1
+        self.health -=2
 
     def _specialized_respond_to_collision(self,plant,position,radius):
         '''

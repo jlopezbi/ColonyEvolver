@@ -3,7 +3,9 @@ import bmesh
 import numpy as np
 
 def file_to_skeleton(file_name):
-    '''note: this only works when the file is a .npy 
+    '''TIP: drag and drop file from finder into blender console to get file_name
+    Makes blender mesh skeleton from data in file
+    note: this only works when the file is a .npy 
     and was saved as an array of a dict. The dict contains 
     the x, y, z, and connections fields'''
     raw = load(file_name)

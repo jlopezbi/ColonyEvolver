@@ -33,7 +33,7 @@ from deap import gp
 pset = brain.big_pset()
 
 ''' create fitnessMin and Individual '''
-creator.create("FitnessMax", base.Fitness, weights=(-1.0,))
+creator.create("FitnessMax", base.Fitness, weights=(1.0,))
 creator.create("Individual", gp.PrimitiveTree, fitness=creator.FitnessMax)
 
 ''' toolbox '''
@@ -59,10 +59,10 @@ def evalPhenotype(genome,runs):
     #start_time = time.time()
     for run in range(runs):
         phenotype = make_phenotype(genome)
-        #health = phenotype.get_health()
-        size = phenotype.number_of_elements()
-        fitness = math.fabs(target_number_nodes-size)
-        fitness_vals.append(fitness)
+        health = phenotype.get_health()
+        #size = phenotype.number_of_elements()
+        #fitness = math.fabs(target_number_nodes-size)
+        fitness_vals.append(health)
         #print(".", sep='', end='')
     #end_time = time.time()
     #elapsed = end_time - start_time
@@ -105,7 +105,7 @@ class EvolutionStuff(object):
         self.pset = pset
 
 def main():
-    random.seed()
+    random.seed(5)
 
     pop = toolbox.population(n=POP_SIZE)
     history.update(pop)

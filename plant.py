@@ -17,11 +17,11 @@ imp.reload(collisions)
 #imp.reload(nodes)
 
 
-class Plant(object):
+class Colony(object):
     """plant composed of nodes, a bounding box
     seed_nodes = iterable collection of obects derived from Node
     Note that seed_nodes must already have parent relations setup amongst themselves
-    In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
+    """
 
 
     def __init__(self,seed_nodes):
