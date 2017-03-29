@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 markdown:         redcarpet
 highlighter:      pygments
@@ -24,3 +25,6 @@ version:          2.1.0
 
 github:
   repo:           https://github.com/poole/hyde
+=======
+theme: jekyll-theme-cayman
+>>>>>>> 59674a8a85ba5e5c4112961bbcf4a2a3a3740159
