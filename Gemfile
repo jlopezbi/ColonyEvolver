@@ -1,3 +1,3 @@
 source 'https://rubygems.org'
-soruce 'https://github.com/pages-themes'
+source 'https://github.com/pages-themes'
 gem "cayman"
