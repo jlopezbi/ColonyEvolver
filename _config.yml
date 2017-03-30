@@ -1,6 +1,7 @@
 # Setup
 title:        Colony Evolver
 tagline:      exploring generative growth and evolution
+projecturl: https://github.com/jlopezbi/ColonyEvolver
 baseurl:      ""
 paginate:     1
 

@@ -6,3 +6,4 @@ _site/
 .nodes.py.swp
 .sass-cache/
 Gemfile.lock
+*.swp
