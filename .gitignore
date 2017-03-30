@@ -1,12 +1,8 @@
+_site/
 .DS_Store
-*.swp
-*.pyc
-coralProject alias
-__pycache__/
-Experiments/
-animations/
-blender_shapes/
-ideas.md
-*.blend1
-EvolvedVirtualPlants_Presentation.key
-'
+.README.md.swp
+.evolve_plants.py.swp
+.grower.py.swp
+.nodes.py.swp
+.sass-cache/
+Gemfile.lock
