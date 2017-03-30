@@ -1,1 +1,0 @@
-if_greater(norm(x), norm(y), rotate_vec_np(x, y, c1), y)
