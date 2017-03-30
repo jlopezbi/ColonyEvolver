@@ -1,5 +1,7 @@
-#Plant Simulations in Blender
+# Plant Simulations in Blender
 generative growth algorithm inspired by plant and coral growth
+
+## TESTING
 
 ## To Run
 - download blender: www.blender.org
