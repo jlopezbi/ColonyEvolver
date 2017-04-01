@@ -1,18 +1,17 @@
-import bpy
-import mathutils
+#import mathutils
 import imp
 import numpy as np
+import matplotlib.pyplot as plt
 import math,random
 import inspect
 import vector_operations
-import mesh_helpers
+#import mesh_helpers
 import numpy_helpers
-import metaball_helpers
+#import metaball_helpers
 import brain
+import mayavi.mlab as mlab
 imp.reload(vector_operations)
 imp.reload(numpy_helpers)
-imp.reload(mesh_helpers)
-imp.reload(metaball_helpers)
 imp.reload(brain)
 
 class Node(object):
@@ -28,11 +27,10 @@ class Node(object):
         else:
             assert type(parent) == Node or inspect.getmro(type(parent))[-2] == Node, "parent must be of base-type Node, instead is it of type {}".format(str(type(parent)))
             self.parent = parent
-        #self.location = mathutils.Vector(location )
         self.location = np.array(location )
         self.radius = .08
         self._post_initialize(kwargs)
-        self.health = 10
+        self.health = 5
 
     def _post_initialize(self,kwargs):
         pass
@@ -63,7 +61,7 @@ class Node(object):
         '''
         function called by simulation to let the node know that time has passed
         '''
-        self.health -=1
+        self.health -=2
 
     def _specialized_respond_to_collision(self,plant,position,radius):
         '''
@@ -89,15 +87,37 @@ class Node(object):
         from_vec = parent_node.location
         return to_vec-from_vec
 
-    def show(self,mball,mesh_object):
-        #self.show_mball_rod(mball)
-        self.show_mesh_line(mesh_object)
+    def get_line(self):
+        p1 = self.location
+        p2 = self.parent.location
+        stack = np.stack([p2,p1],axis=1)
+        return stack
+        #x = stack[0]
+        #y = stack[1]
+        #z = stack[2]
+        #return x, y, z
+
+# if doing many calls to plot3d is less efficient than doing
+# one call what would be the hint? I really think it makes sense to simply try both out!
+
+    def show(self,fig):
+        coords = self.get_line()
+        x = coords[0]
+        y = coords[1]
+        z = coords[2]
+        #draw line
+        #mlab.plot3d(x, y, z, tube_radius=.012)
+        mlab.plot3d(x, y, z, figure=fig, line_width=1.0)
+        #draw dot
+        #mlab.points3d(x[0],y[0],z[0], figure=fig, mode='sphere',scale_factor=.08)
 
     def show_mball_rod(self,mball):
-        metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
+        #metaball_helpers.add_metaball_rod(mball,self.radius,self.parent.location,self.location)
+        pass
 
     def show_mesh_line(self,mesh_object):
-        mesh_helpers.add_line_to_mesh_object(mesh_object,self.location,self.parent.location)
+        pass
+        #mesh_helpers.add_line_to_mesh_object(mesh_object,self.location,self.parent.location)
 
     def show_single(self,radius=1.0):
         bpy.ops.surface.primitive_nurbs_surface_sphere_add(radius=radius, location=self.location)
@@ -146,11 +166,11 @@ class NodeAwareOfHistory(Node):
     '''
     def _post_initialize(self,kwargs):
         self.distance_from_branch_node = kwargs['lineage_distance']
-        self.branch_distance = 20 #nodes from branc point before a new branch point occurs
+        self.branch_distance = 5 #nodes from branc point before a new branch point occurs
         self.data = []
         self.num_particles_to_grow = 20
-        self.internode_weight = .9
-        self.collision_weight = .1
+        self.internode_weight = .7
+        self.collision_weight = .3
         self.is_alive = True
 
     def _specialized_respond_to_collision(self,plant,position,radius):
@@ -209,7 +229,7 @@ class Bud(Node):
 class BudSub(Node):
     def _post_initialize(self,args):
         self.data = []
-        self.num_particles_to_grow = 3
+        self.num_particles_to_grow = 40
 
     def _specialized_respond_to_collision(self,plant,position,radius):
         vec_disp = position - self.location 
@@ -218,8 +238,8 @@ class BudSub(Node):
             avg_disp = numpy_helpers.get_mean_vector(self.data)
             pos = self.location + avg_disp 
             self.data = []
-            return [BranchyNode(parent=self,location =pos)]
-            #return [Bud(parent=self,location =pos)]
+            #return [BranchyNode(parent=self,location =pos)]
+            return [Bud(parent=self,location =pos)]
         else:
             return None
 
@@ -230,7 +250,7 @@ class StarBurstBranchNode(Node):
     def _post_initialize(self,kwargs):
         self.hits = 0
         self.num_particles_to_grow = 15
-        self.number_branches = 2
+        self.number_branches = 7
         self.is_alive = True
 
     def _specialized_respond_to_collision(self,plant,position,radius):
@@ -282,16 +302,20 @@ class BranchyNode(Node):
         return self.location + o
 
     def get_branch_ortho_rand(self,plant):
+        #NOTE: need to replace with vector_operations code
+        '''
         internode_vec = mathutils.Vector(self.get_parent_internode_vec(plant))
         ortho_rand = internode_vec.orthogonal()
         ortho_rand.normalize()
         angle = random.uniform(0.0,math.pi*2)
         ortho_rand.rotate(self.create_rotation_quat(internode_vec,angle))
         n = ortho_rand * internode_vec.length  
-        return n
+        '''
+        pass
 
     def create_rotation_quat(self,vector,angle):
-        return mathutils.Quaternion(vector,angle)
+        #return mathutils.Quaternion(vector,angle)
+        pass
 
 #TODO: figure out how to make a node lineage that has one type of processor
 #also make sure that processor is getting regenerated when I want it to!
@@ -308,7 +332,8 @@ class BrainNode(Node):
         if not parent_to_node.any():
             return None
         new_offset = self.processor(node_to_sphere,parent_to_node)
-        if not new_offset.any():
+        z = np.array([0.0, 0.0, 0.0])
+        if np.isclose(z,new_offset,atol=.01).all() or np.isnan(new_offset).any():
             return None
         new_position = self.location + new_offset
         return [BrainNode(parent=self,location=new_position,processor=self.processor)]

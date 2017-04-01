@@ -1,12 +1,6 @@
 import numpy as np
 import math,random
-import bpy
-import sys,os,imp
-loc = os.path.dirname(bpy.data.filepath)
-if not loc in sys.path:
-    sys.path.append(loc)
-import mesh_helpers
-imp.reload(mesh_helpers)
+#import mesh_helpers
 
 #NOTE: both world and plant make use of a bounding box object with the same requirements.
 #this object exists and is being used by plant, but further work is required to make it used by boxworld
@@ -28,14 +22,15 @@ class BoxWorld(object):
         self.blender_object = None
         self.obj_name = 'BoxWorld'
         self.mesh_name = 'boxMesh'
-        self.mesh_grower = self.setup_mesh_grower()
+        #self.mesh_grower = self.setup_mesh_grower()
 
     def set_size(self,front,back):
         self.lower_vertex = front
         self.upper_vertex = back
 
     def setup_mesh_grower(self):
-        return mesh_helpers.MeshSkeletonGrower(self.obj_name,self.mesh_name)
+        #return mesh_helpers.MeshSkeletonGrower(self.obj_name,self.mesh_name)
+        pass
 
     def report(self):
         '''return a string of relevant information about current state of box'''
@@ -52,6 +47,7 @@ class BoxWorld(object):
         '''
         # if a blender object already exists then the mesh_grower must have been finalized;
         # in this case make a new mesh_grower and object
+        '''
         if self.blender_object:
             self.mesh_grower = self.setup_mesh_grower()
         v1 = self.mesh_grower.add_vertex(self.lower_vertex)
@@ -75,6 +71,9 @@ class BoxWorld(object):
         self.mesh_grower.add_edge(v7,v8)
         self.mesh_grower.add_edge(v8,v5)
         self.blender_object = self.mesh_grower.finalize()
+        '''
+        #print("show for box world not implemented yet!")
+        pass
 
     def translate(self,vector):
         '''

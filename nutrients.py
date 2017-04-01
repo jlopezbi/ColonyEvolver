@@ -1,4 +1,3 @@
-import bpy
 import numpy as np
 import random
 import math
@@ -20,6 +19,15 @@ class ParticleSystem(object):
         self.num_particles = num_particles
         self.particles = []
         self.set_initial_positions()
+
+    def get_particle(self, idx):
+        return self.particles[idx]
+
+    def get_matrix_form(self):
+        return np.stack(self.get_particle_vectors(), axis=0)
+
+    def get_particle_vectors(self):
+        return [particle.position for particle in self.particles]
 
     def set_initial_positions(self):
         #perhaps adding all the particles to the top plane and the running
@@ -90,9 +98,8 @@ class Particle(object):
         x = self.position[0]
         y = self.position[1]
         z = self.position[2]
-        # bpy.ops.object.empty_add(type='SPHERE',radius=self.radius,location=(x,y,z))
-        bpy.ops.surface.primitive_nurbs_surface_sphere_add(
-            radius=self.radius, location=(x, y, z))
+        #print("show not implemented yet")
+        pass
 
     def _get_random_vector_biased(self, speed):
         '''

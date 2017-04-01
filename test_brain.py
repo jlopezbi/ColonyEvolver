@@ -1,11 +1,6 @@
-import bpy
 import sys,os,imp
-loc = os.path.dirname(bpy.data.filepath)
-if not loc in sys.path:
-    sys.path.append(loc)
 import unittest
 import numpy as np
-import mathutils
 import brain
 imp.reload(brain)
 
@@ -44,6 +39,8 @@ class BrainTestCase(unittest.TestCase):
         tree = {1: (), 2: (), 3: (), 4: (1, 3), 5: (4, 3), 6: (4, 3)}
         brain.plot_genealogy_tree(tree)
 
+if __name__=="__main__":
+    unittest.main(verbosity=2)
 
 
 

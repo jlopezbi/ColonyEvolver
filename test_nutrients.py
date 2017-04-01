@@ -4,7 +4,7 @@ import numpy as np
 imp.reload(nutrients)
 
 
-class ParticleTestCase(unittest.TestCase):
+class ParticleNutrientsTestCase(unittest.TestCase):
     def setUp(self):
         pos = (0.0,0.0,0.0)
         radius = .7

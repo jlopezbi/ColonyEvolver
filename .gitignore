@@ -4,8 +4,12 @@
 coralProject alias
 __pycache__/
 Experiments/
+deapGeneticProgrammingExperiments/
+Evolution Archive/
+SupportingDocuments/
 animations/
 blender_shapes/
+processor_tree_archive/
 ideas.md
 *.blend1
 EvolvedVirtualPlants_Presentation.key

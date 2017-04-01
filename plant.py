@@ -1,37 +1,36 @@
-import bpy
-import mathutils
 import imp
 import numpy as np
+import scipy.spatial as sp
+import matplotlib.pyplot as plt
 import math,random
 import inspect
+import visualization_base as vb
 
+import collisions
 import base_objects
-import mesh_helpers
 import numpy_helpers
-import metaball_helpers
 import nodes
-imp.reload(base_objects)
-imp.reload(numpy_helpers)
-imp.reload(mesh_helpers)
-imp.reload(metaball_helpers)
-imp.reload(nodes)
+import mayavi.mlab as mlab
+imp.reload(collisions)
+#imp.reload(base_objects)
+#imp.reload(numpy_helpers)
+#imp.reload(nodes)
 
-class Plant(object):
+
+class Colony(object):
     """plant composed of nodes, a bounding box
     seed_nodes = iterable collection of obects derived from Node
     Note that seed_nodes must already have parent relations setup amongst themselves
-    In This version Plant has a mesh_grower, so Plant is responsible for constructing the visualization"""
+    """
+
 
     def __init__(self,seed_nodes):
         #IDEA: could have plant be an extended bmesh!
         #obserbation: need to rebuild tree each time a node is added!
         # don't be afraid to do it naively first!
 
-        self.mesh_grower = mesh_helpers.MeshSkeletonGrower("Skeleton","mesh")
         #self.mesh_object = mesh_helpers.init_mesh_object()
         self.object_linked = None
-        #mball_obj,mball = metaball_helpers.create_metaball_obj()
-        #self.mball_obj = mball_obj
         #self.mball = mball
         self.bbox = base_objects.BoundingBox()
         self.nodes = []
@@ -60,22 +59,75 @@ class Plant(object):
             scores.append(n.health)
         return np.average(scores)
 
-    def collide_with(self,particle_system):
+    def collide_with(self,particle_sys):
+        #self.collide_with_array_node_view(particle_sys)
+        #self.collide_with_single_version(particle_sys)
+        self.collide_with_arr_particle_view(particle_sys)
+
+    def collide_with_arr_particle_view(self,particle_sys):
         '''
-        NOTE: this is where an important entanglement between plant
-        and nutrients occurs!
-        first iteration; knows quite a bit about particle system!
-        creates new child nodes fromm nodes that intersect nutrients
+        fastest thus far method for computing collisions
+        computes collisions for particles. For each collisions set of a particle,
+        arbitrarily chooses a node to grow.
+        '''
+        particles_tree = sp.cKDTree(particle_sys.get_matrix_form())
+        colony_tree = sp.cKDTree(self.get_matrix_form())
+        radius = particle_sys.radius
+        neighbor_array = particles_tree.query_ball_tree(colony_tree, radius)
+        for i,nodes in enumerate(neighbor_array):
+            if nodes:
+                p = particle_sys.get_particle(i)
+                n_idx = nodes[0] #arbitrary choice
+                position = particles_tree.data[i]
+                collided_node = self.nodes[n_idx]
+                new_nodes = collided_node.respond_to_collision(self,position,radius)
+                if new_nodes:
+                    for node in new_nodes:
+                        self.append_node(node, collided_node)
+                particle_sys.re_spawn_particle(p)
+
+    def collide_with_array_node_view(self,particle_sys):
+        '''test if faster.'''
+        #There is an inherent diffuclty here: nothing stops two nodes from being
+        #fed by the same particle. In the other version collided particles get respawned.
+        #here the data of the collision remains unchanged!
+        #would make sense to prefer node that is closest to center of particle!
+        #IDEA: flip the collision, so that is from the particles perspective.
+        #foreach particle decide which node gets fed, and then discount others from feeding
+        colony_tree = collisions.create_spatial_tree(self.get_matrix_form())
+        particles_tree = collisions.create_spatial_tree(particle_sys.get_matrix_form())
+        radius = particle_sys.radius
+        neighbor_array = collisions.collide(colony_tree, particles_tree, radius)
+        for i,positions in enumerate(neighbor_array):
+            if positions:
+                collided_node = self.nodes[i]
+                p_idx = positions[0] #arbitrarily grab first particleindex
+                p = particle_sys.get_particle(p_idx)
+                position = particles_tree.data[p_idx]
+                new_nodes = collided_node.respond_to_collision(self, position, p.radius)
+                if new_nodes:
+                    for node in new_nodes:
+                        self.append_node(node, collided_node)
+                particle_sys.re_spawn_particle(p)
+
+    def collide_with_single_version(self,particle_system):
+        '''
+        find collisions of self with particle_system,
+        send message to collided nodes to respond to collision
         '''
         tree = self._create_spatial_tree()
         particles = particle_system.particles
         for p in particles:
-            collided = tree.find_range(p.position,p.radius)
-            # returns a list of tuples: (pos,index,dist)
-            if not collided:
+            neighbors = tree.query_ball_point(p.position,p.radius)
+            #neighbors is an array of lists of indices 
+            #that correspond to points in the tree.
+            #in this case that means plant nodes
+            if not neighbors:
                 continue
             else:
-                pos_of_node,index,dist = collided[0]
+
+                index = neighbors[0]
+                #for now just take first neighbor, to simplify stuff
                 #new_node = self.spawn_new_node(p.position,index,dist)
                 collided_node = self.get_node(index)
                 new_nodes = collided_node.respond_to_collision(self,p.position,p.radius)
@@ -92,20 +144,24 @@ class Plant(object):
 
     def _create_spatial_tree(self):
         '''
-        NOTE: the reliance here on mathutils.kdtree is one of the major
-        blender dependencies. However, KDTree functionality is readily available from
-        other libraries
-        Probably would be better to use some sort of spatial tree designed to be dynamically
-        grown/updated
+        creates spatial tree used for efficiently computing collisions
         '''
-        spatial_tree = mathutils.kdtree.KDTree(self.number_of_elements())
-        for i,node in enumerate(self.nodes):
-            spatial_tree.insert(node.location,i)
-        spatial_tree.balance()
+        spatial_tree = sp.cKDTree(self.get_matrix_form())
         return spatial_tree
+
+    def get_matrix_form(self):
+        '''returns matrix of points making up colony, shape: Npoints x 3 (x,y,z)'''
+        vectors = self.get_node_vectors()
+        return np.stack(vectors,axis=0)
+
+    def get_node_vectors(self):
+        return [node.location for node in self.nodes]
 
     def get_node(self,node_idx):
         return self.nodes[node_idx]
+
+    def get_index_for_node(self,node):
+        return self.nodes.index(node)
 
     def append_node(self,new_node,old_node=None):
         '''
@@ -113,17 +169,49 @@ class Plant(object):
         Perhaps dangerous function that hides alot!
         '''
         self.nodes.append(new_node)
-        new_node.vert = self.mesh_grower.add_vertex(new_node.location)
-        if old_node:
-            self.mesh_grower.add_edge(old_node.vert,new_node.vert)
         self.bbox.update_bbox(new_node.location)
 
-    def show(self):
-        #for some reason all geometry appears to be parented together in blender
-        if len(self.nodes)==1:
-            self.nodes[0].show_single(radius=.1)
-        else:
-            self.object_linked = self.mesh_grower.finalize()
+    def show_indvidual_calls(self, fig=None):
+        '''depricated, less efficient drawing'''
+        for node in self.nodes:
+            node.show(fig)
+
+    def show(self,fig=None):
+        auto_show = False
+        if fig==None:
+            auto_show = True
+            fig = vb.init_fig()
+        self.show_lines()
+        if auto_show:
+            vb.show_fig()
+
+    def show_lines(self):
+        x, y, z, connections = self.collect_line_data()
+        vb.make_lines(x, y, z, connections)
+    
+    def collect_line_data(self):
+        x = []
+        y = []
+        z = []
+        connections = []
+        for node_idx, node in enumerate(self.nodes):
+            x_loc, y_loc, z_loc = node.location
+            x.append(x_loc)
+            y.append(y_loc)
+            z.append(z_loc)
+            parent_idx = self.get_index_for_node(node.parent)
+            connections.append([parent_idx, node_idx])
+        #Cast to numpy arrays
+        x = np.array(x)
+        y = np.array(y)
+        z = np.array(z)
+        connections = np.array(connections)
+        return x, y, z, connections
+
+    def save_line_data(self):
+        x,y,z,c = self.collect_line_data()
+        data = {'x':x, 'y':y, 'z':z, 'connections':c}
+        np.save('line_data.npy',data)
 
     def translate(self,vector):
         '''

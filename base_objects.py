@@ -3,7 +3,9 @@ import numpy as np
 import math,random
 
 import numpy_helpers
+import visualization_base
 imp.reload(numpy_helpers)
+imp.reload(visualization_base)
 
 
 class BoundingBox(object):
@@ -31,3 +33,21 @@ class BoundingBox(object):
     def _range_along(self,axis):
         assert axis in (0,1,2), 'axis was {}, must be one of 0 (x) 1 (y) or 2 (z)'.format(axis)
         return self.bbox_lower[axis], self.bbox_upper[axis]
+
+    def show(self,ax=None):
+        imp.reload(visualization_base)
+        ax = visualization_base.init_fig()
+        visualization_base.draw_box(self.collect_points(),ax)
+        visualization_base.show()
+        
+    def collect_points(self):
+        v1 = self.bbox_lower
+        v2 = (self.bbox_upper[0],self.bbox_lower[1],self.bbox_lower[2])
+        v3 = (self.bbox_upper[0],self.bbox_upper[1],self.bbox_lower[2])
+        v4 = (self.bbox_lower[0],self.bbox_upper[1],self.bbox_lower[2])
+        v5 = (self.bbox_lower[0],self.bbox_lower[1],self.bbox_upper[2])
+        v6 = (self.bbox_upper[0],self.bbox_lower[1],self.bbox_upper[2])
+        v7 = self.bbox_upper
+        v8 = (self.bbox_lower[0],self.bbox_upper[1],self.bbox_upper[2])
+        return [v1, v2, v3, v4, v5, v6, v7, v8 ]
+
