@@ -1,16 +1,11 @@
-#Plant Simulations in Blender
+# Coral Simulations and Evolution 
+[project page](https://jlopezbi.github.io/ColonyEvolver/)
 generative growth algorithm inspired by plant and coral growth
 
 ## To Run
-- download blender: www.blender.org
-- in blender open the template.blend file included in this repository
-- change blender to script viewport mode
-- load the grow_plant.py script from this repository and press "run"
-At the moment the project depends on the deap library: https://github.com/DEAP/deap
-To run your going to need to install the deap library for python3 and then add the location of the library to the python path within blender.
 
-## First Iteration Strategy
-particles jitter downwards.
+## How the Growth Simulation Works
+Spherical particles jitter downwards.
 A box world contains particles. If a particles goes outside the boz, it is moved back to the top plane of the box.
 A directed graph structure grows new nodes each time a particle collides with a node.
 
@@ -22,10 +17,5 @@ Above: A plant-shape, or perhaps more like a coral-shape, that was grown using P
 The above is the first "plant" grown using this system. In this case new nodes were added to the plant each time a particle (sphere) collided with a pre-existing node, the 'parent' node. The new node's location was the center of the sphere.
 
 ## Developer Notes
-* To run all tests: in a terminal (cd to project directory) type: 
-``` blender --background --python run_all_tests.py ```
-This ensures that any changes you make to the code or tests will appear in the unittest run.
-At the moment, the current pattern to develop this project is to have a collection of test_module.py files (or test_class.py). Each test_stuff.py file has unittest.TestCase classes that test various stuff.
-To run an individual test file and see the effect it has on the blender scene, open the script in the blender text editor, and run it.
 
 
