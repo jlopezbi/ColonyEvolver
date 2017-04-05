@@ -1,7 +1,6 @@
 # [Coral Simulations and Evolution](https://jlopezbi.github.io/ColonyEvolver/)
 
-generative growth algorithm inspired by plant and coral growth
-
+generative growth algorithm inspired by plant and coral growth. Check out the blog [here](https://jlopezbi.github.io/ColonyEvolver/)
 
 
 ## How the Growth Simulation Works
@@ -9,7 +8,7 @@ Spherical particles jitter downwards. These are the 'nutrients' for the colony t
 A box contains the particles and the colony. If a particle goes outside the box, it is moved back to the top plane of the box. The colony is a collection of nodes, cNode for colony node. Each node has a location in 3d space, and stores a pointer to its parent node.  In each step of the simulation the particles move some small amount, and then all of the collisions between the particles and the colony nodes are computed. If a particle collides with some nodes, one of them is chosen (at this point it is arbitrary which one) to recieve the message that it was collided. The cNode can do whatever it likes with this information. It could spawn a child node, save the data, send a message to another cNode, etc. This is where things get creative!
 
 ## Current Goal
-Of course it is possible to write a program for the colony nodes that decides what to do when the cNode gets a collision. But more interesting to me is evolving that program. At the moment a genetic programming (gp) approach is used to evolve the 'mini-program' that acts as the decision maker for the colony nodes.
+Of course it is possible to write a program for the colony nodes that decides what to do when the cNode gets a collision. I have played around a little with different cNode behaviors. But more interesting to me is evolving that program. At the moment a genetic programming (gp) approach is used to evolve the 'mini-program' that acts as the decision maker for the colony nodes.
 
 
 ## Images
