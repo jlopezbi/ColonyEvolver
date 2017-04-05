@@ -3,8 +3,8 @@ title:        Colony Evolver
 tagline:      exploring generative growth and evolution
 projecturl: https://github.com/jlopezbi/ColonyEvolver
 url:      ""
-
-home: https://jlopezbi.github.io/ColonyEvolver/
+baseurl: "/ColonyEvolver"
+#home: https://jlopezbi.github.io/ColonyEvolver/
 paginate:     1
 
 # About/contact
