@@ -3,7 +3,6 @@
 *.pyc
 coralProject alias
 __pycache__/
-Experiments/
 deapGeneticProgrammingExperiments/
 Evolution Archive/
 SupportingDocuments/
