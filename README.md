@@ -21,4 +21,11 @@ The above is the first "plant" grown using this system. In this case new nodes w
 ## Developer Notes
 run 'grip' to render this markdown file
 
+### Dependencies:
+* Numpy
+* transforms3d 
+* mayavi
+	** vtk
+* deap
+
 
