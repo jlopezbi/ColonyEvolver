@@ -60,8 +60,8 @@ def evalPhenotype(genome,runs):
     for run in range(runs):
         phenotype = make_phenotype(genome)
         health = phenotype.get_health()
-        #size = phenotype.number_of_elements()
-        #fitness = math.fabs(target_number_nodes-size)
+        size = phenotype.number_of_elements()
+        combined_score = health + size #naively do not weighted sum
         fitness_vals.append(health)
         #print(".", sep='', end='')
     #end_time = time.time()
