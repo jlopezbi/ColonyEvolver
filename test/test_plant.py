@@ -19,7 +19,7 @@ class StubbedParticle(object):
 
 class PlantTestCase(unittest.TestCase):
     def setUp(self):
-        self.plant = plant.Plant(nodes.DumbNode(parent=None,location=(0.0,0.0,0.0)))
+        self.plant = plant.Colony(nodes.DumbNode(parent=None,location=(0.0,0.0,0.0)))
 
     def test_show(self):
         self.plant.show()
