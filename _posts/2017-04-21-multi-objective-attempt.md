@@ -1,6 +1,6 @@
 ---
 layout: default
-title:  "Multi Objective First Attempt"
+title:  "Multi Objective First Run"
 date:   2017-04-21 
 categories: main
 ---
