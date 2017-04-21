@@ -10,7 +10,7 @@ imp.reload(nodes)
 class NodeTestCase(unittest.TestCase):
 
     def setUp(self):
-        self.plant = plant.Plant(nodes.Node(parent=None,location=(0,0,0)))
+        self.plant = plant.Colony(nodes.Node(parent=None,location=(0,0,0)))
 
     def _test_respond_to_collision(self):
         node = nodes.Node(parent = None,location=(0.0,0.0,0.0))
