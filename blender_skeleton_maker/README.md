@@ -1,5 +1,5 @@
 # Convert a Numpy 3d network to Blender Mesh
-This lets you take a numpy representation of a 3d network and turn it intoa blender mesh! 
+This lets you take a numpy representation of a 3d network and turn it into a blender mesh! 
 
 ## Format
 The numpy-saved file (.npy) must contain x,y,z point data and c connection data between the points. These are numpy lists, named x, y, z and c. c is a list of lists, each sublist is two indices from the x,y,z data that forms a connection between those points.
@@ -11,7 +11,7 @@ The numpy-saved file (.npy) must contain x,y,z point data and c connection data 
 ``` from make_skeleton import file_to_skeleton ```
 - now in the console type 
 ``` file_to_skeleton( ```
-- drag the .npy file into the console. Close it of with a parenthesis. The path to the file will appear. should looks something like:
+- Drag the .npy file into the console.  The path to the file will appear. Close it of with a parenthesis. Should looks something like:
 ``` file_to_skeleton("/Users/josh/Projects/ColonyEvolver_above/ColonyEvolver/line_data.npy") ```
 - press enter. A new mesh object will appear called Skeleton!
 
