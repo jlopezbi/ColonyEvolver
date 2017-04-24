@@ -122,7 +122,7 @@ def main():
                                           CXPB, 
                                           MUTPB,
                                           N_GEN, 
-                                          stats=mstats,
+                                          stats=stats,
                                           halloffame=hof, 
                                           verbose=True)
     # print log
