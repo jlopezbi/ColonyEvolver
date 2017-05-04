@@ -1,10 +1,10 @@
 ---
 layout: default
-title: "Pareto Front not Moving Much"
+title: "Population Needs to be Big for Pareto-Front to Move"
 categories: main
 ---
 
-While the last two posts were exciting because a multi-objective evolution ran and spat out some neat shapes, I had to check if the evolution was actually finding *better* populations. Code for this run is under ``` git tag list-save ```
+While the last two posts were exciting because a multi-objective evolution ran and spat out some neat shapes, I had to check if the evolution was actually finding *better* populations. 
 
 ```python
 import ColonyEvolver.evolve_colony_multi_obj as ev
@@ -48,6 +48,7 @@ plt.xlabel('number of nodes')
 plt.ylabel('colony health')
 plt.show(fig)
 ```
+This plot was generated with Population=25 and Children=50. Code is at ``` git tag list-save ```
 
 ![png]({{ site.url }}{{ site.baseurl}}/assets/size-health-small-change.png)
 
@@ -61,5 +62,9 @@ What is going on? Here are some ideas.
 
 1, 2, and 4 seem likely. If 2 is true its not so terrible; in the long run individuals that result in inconsistent fitness may die-out. 1 maybe means I should do a run with a larger population. Comparing to the knapsack example shows that I halved the population size (just to make it run faster). I think its time to try out a bigger run.
 
+Ok did that. Here is the output:
 
+Code is at ``` git tag mult-obj-more-gen ```
+![yay]({{ site.url }}{{ site.baseurl }}/assets/pareto_front_improving.png)
 
+Wow this looks alot better.
