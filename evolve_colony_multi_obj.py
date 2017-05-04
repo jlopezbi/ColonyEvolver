@@ -67,6 +67,7 @@ def summarize_values(values):
     return np.average(values)
 
 def _log_fitness(file):
+    '''great idea but not reliabling working when load'''
     def decorator(func):
         def wrapper(*args, **kwargs):
             population = func(*args, **kwargs)
@@ -78,6 +79,7 @@ def _log_fitness(file):
             return population
         return wrapper 
     return decorator
+# usage: toolbox.decorate("select", log_fitness(open("multi_obj_fit_6.pkl", "wb")))
 
 def log_fitness(big_list):
     def decorator(func):
@@ -88,7 +90,6 @@ def log_fitness(big_list):
                 x, y = ind.fitness.values
                 archive.append( ( float(x), float(y) ) )
             big_list.append(archive)
-            #cPickle.dump(archive, file)
             return population
         return wrapper 
     return decorator
@@ -97,31 +98,16 @@ def log_fitness(big_list):
 ## PARAMETERS
 PHENO_RUNS = 7
 N_GEN = 10 
-N_INDIVID_SELECT = 25 #MU
-N_CHILDREN = 50 #LAMBDA
+N_INDIVID_SELECT = 50 #MU
+N_CHILDREN = 100 #LAMBDA
 CXPB = 0.7 #crossover 
 MUTPB = 0.2 #mutation probablity
 max_size = 13 #of processor tree
-prob_mate = 0.5
-prob_mutate = 0.1
 
-## TEMP Params
-'''
-PHENO_RUNS = 1
-N_GEN = 3
-N_INDIVID_SELECT = 10 #MU and pop size
-N_CHILDREN = 20 #LAMBDA
-CXPB = 0.7 #crossover 
-MUTPB = 0.2 #mutation probablity
-max_size = 13 #of processor tree
-prob_mate = 0.5
-prob_mutate = 0.1
-'''
 
 toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS)
 toolbox.register("select", tools.selNSGA2)
 archive = []
-#toolbox.decorate("select", log_fitness(open("multi_obj_fit_6.pkl", "wb")))
 toolbox.decorate("select", log_fitness(archive) )
 toolbox.register("mate", gp.cxOnePoint)
 toolbox.register("expr_mut", gp.genFull, min_=1, max_=7)
