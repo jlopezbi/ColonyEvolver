@@ -66,6 +66,8 @@ def evalPhenotype(genome,runs):
 def summarize_values(values):
     return np.average(values)
 
+''' Saving Shit '''
+
 def _log_fitness(file):
     '''great idea but not reliabling working when load'''
     def decorator(func):
@@ -93,6 +95,26 @@ def log_fitness(big_list):
             return population
         return wrapper 
     return decorator
+# Save an image for each genome in the final population
+import mayavi.mlab as mlab
+
+def save_images_of_pop(pop):
+    '''
+    assumes pop is already ordered logically
+    '''
+    for i,genome in enumerate(pop):
+        p = make_phenotype(genome)
+        p.show_lines()
+        mlab.savefig(str(i).zfill(2)+'_genome.png')
+        mlab.close(all=True)
+'''
+    for i,idx in enumerate(ordered_idx):
+        genome = info.final_pop[idx]
+        p = ev.make_phenotype(genome)
+        p.show_lines()
+        mlab.savefig(str(i).zfill(2)+'_genome_'+str(idx)+'.png')
+        mlab.close(all=True)
+'''
 
 #############################################################
 ## PARAMETERS
