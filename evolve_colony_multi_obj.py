@@ -12,9 +12,9 @@ import deap.gp as gp
 import pygraphviz as pgv
 import numpy as np
 import time
+import cPickle
 #import vector_operations
 import math, random, operator
-import uuid
 
 import grower 
 import vector_operations
@@ -65,10 +65,38 @@ def evalPhenotype(genome,runs):
 
 def summarize_values(values):
     return np.average(values)
+
+def _log_fitness(file):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            population = func(*args, **kwargs)
+            archive = []
+            for ind in population:
+                x, y = ind.fitness.values
+                archive.append( ( float(x), float(y) ) )
+            cPickle.dump(archive, file)
+            return population
+        return wrapper 
+    return decorator
+
+def log_fitness(big_list):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            population = func(*args, **kwargs)
+            archive = []
+            for ind in population:
+                x, y = ind.fitness.values
+                archive.append( ( float(x), float(y) ) )
+            big_list.append(archive)
+            #cPickle.dump(archive, file)
+            return population
+        return wrapper 
+    return decorator
+
 #############################################################
 ## PARAMETERS
 PHENO_RUNS = 7
-N_GEN = 10
+N_GEN = 10 
 N_INDIVID_SELECT = 25 #MU
 N_CHILDREN = 50 #LAMBDA
 CXPB = 0.7 #crossover 
@@ -77,8 +105,24 @@ max_size = 13 #of processor tree
 prob_mate = 0.5
 prob_mutate = 0.1
 
+## TEMP Params
+'''
+PHENO_RUNS = 1
+N_GEN = 3
+N_INDIVID_SELECT = 10 #MU and pop size
+N_CHILDREN = 20 #LAMBDA
+CXPB = 0.7 #crossover 
+MUTPB = 0.2 #mutation probablity
+max_size = 13 #of processor tree
+prob_mate = 0.5
+prob_mutate = 0.1
+'''
+
 toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS)
 toolbox.register("select", tools.selNSGA2)
+archive = []
+#toolbox.decorate("select", log_fitness(open("multi_obj_fit_6.pkl", "wb")))
+toolbox.decorate("select", log_fitness(archive) )
 toolbox.register("mate", gp.cxOnePoint)
 toolbox.register("expr_mut", gp.genFull, min_=1, max_=7)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
@@ -128,7 +172,7 @@ def main():
     # print log
     
     stuff = EvolutionStuff(pop, log, hof, history, toolbox, pset)
-    return stuff
+    return stuff,archive
 
 if __name__ == "__main__":
     main()
