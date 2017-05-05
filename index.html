@@ -16,15 +16,34 @@ title: {{ site.name }}
 
 <!-- Pagination links -->
 <div class="pagination">
-  <span class="page_number ">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+  <!-- Previous Button -->
   {% if paginator.previous_page %}
   <a href="{{ site.baseurl }}{{ paginator.previous_page_path }}" class="previous">Previous</a>
   {% else %}
     <span class="previous">Previous</span>
   {% endif %}
+  
+  <!-- Numbers -->
+  <span> | </span>
+  {% for i in (1..paginator.total_pages) %}
+	  {% if paginator.page == forloop.index %}
+	  <b>{{ forloop.index }}</b>
+	  {% else %}
+	  <span>{{ forloop.index }}</b>
+	  {% endif %}
+	  {% if paginator.total_pages != forloop.index %}
+	  <span> , </span>
+	  {% endif %}
+  {% endfor %}
+  <span> | </span>
+
+
+  <!-- Next Button -->
   {% if paginator.next_page %}
   <a href="{{ site.baseurl }}{{ paginator.next_page_path }}" class="next">Next</a>
   {% else %}
     <span class="next ">Next</span>
   {% endif %}
+
 </div>
+
