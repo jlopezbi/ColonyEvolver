@@ -5,7 +5,7 @@ projecturl: https://github.com/jlopezbi/ColonyEvolver
 url:      ""
 baseurl: "/ColonyEvolver"
 #home: https://jlopezbi.github.io/ColonyEvolver/
-paginate:     1
+paginate:     5
 
 # About/contact
 author:
