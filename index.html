@@ -18,9 +18,9 @@ title: {{ site.name }}
 <div class="pagination">
   <!-- Previous Button -->
   {% if paginator.previous_page %}
-  <a href="{{ site.baseurl }}{{ paginator.previous_page_path }}" class="previous">Previous</a>
+  <a href="{{ site.baseurl }}{{ paginator.previous_page_path }}" class="previous">Newer Posts</a>
   {% else %}
-    <span class="previous">Previous</span>
+    <span class="previous">Newer Posts</span>
   {% endif %}
   
   <!-- Numbers -->
@@ -38,11 +38,11 @@ title: {{ site.name }}
   <span> | </span>
 
 
-  <!-- Next Button -->
+  <!-- Older Button -->
   {% if paginator.next_page %}
-  <a href="{{ site.baseurl }}{{ paginator.next_page_path }}" class="next">Next</a>
+  <a href="{{ site.baseurl }}{{ paginator.next_page_path }}" class="older">Older Posts</a>
   {% else %}
-    <span class="next ">Next</span>
+    <span class="older ">Older Posts</span>
   {% endif %}
 
 </div>
