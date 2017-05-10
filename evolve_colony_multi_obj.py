@@ -1,7 +1,7 @@
 
 '''
 Initialized on 2016/12/16
-Josh Lopez-Binder. hi.
+Josh Lopez-Binder. hi!
 copied from
 https://github.com/DEAP/deap/blob/a90d3d599aa789a0083f5bc299803ec32d491cbd/examples/gp/symbreg.py
 '''
@@ -50,18 +50,22 @@ def make_phenotype(genome):
     return runner.grow(seed,t_steps=20)
 
 ''' fitness evaulator '''
-def evalPhenotype(genome,runs):
+def evalPhenotype(genome, runs, max_nodes):
     '''
     Note: must return a tuple value!
     '''
     target_number_nodes = 13.0
-    size = []
-    health = []
+    size_scores = []
+    health_scores = []
     for run in range(runs):
         phenotype = make_phenotype(genome)
-        health.append(phenotype.get_health())
-        size.append(phenotype.number_of_elements())
-    return summarize_values(size), summarize_values(health)
+        health = phenotype.get_health()
+        num_elements = phenotype.number_of_elements()
+        if num_elements > max_nodes:
+            return 0, 0 #ensure that bloated phenotypes are avoided; they slow down simulation
+        health_scores.append(health)
+        size_scores.append(num_elements)
+    return summarize_values(size_scores), summarize_values(health_scores)
 
 def summarize_values(values):
     return np.average(values)
@@ -98,6 +102,9 @@ def log_fitness(big_list):
 # Save an image for each genome in the final population
 import mayavi.mlab as mlab
 
+def sort_pop_by_health(pop):
+    return sorted(pop, key=lambda x: x.fitness.values[1], reverse=True )
+
 def save_images_of_pop(pop):
     '''
     assumes pop is already ordered logically
@@ -105,6 +112,10 @@ def save_images_of_pop(pop):
     for i,genome in enumerate(pop):
         p = make_phenotype(genome)
         p.show_lines()
+        n_nodes, health = genome.fitness.values
+        info = "#nodes: {0:.1f}, health: {1:.1f}".format(n_nodes, health)
+        mlab.text(x=0.01, y=0.01, text=info, width=0.9)
+        #mlab.title(text='#nodes: {0:.1f}, health:{1:.1f},'.format(n_nodes, health))
         mlab.savefig(str(i).zfill(2)+'_genome.png')
         mlab.close(all=True)
 '''
@@ -119,15 +130,27 @@ def save_images_of_pop(pop):
 #############################################################
 ## PARAMETERS
 PHENO_RUNS = 7
-N_GEN = 10 
+N_GEN = 20 
 N_INDIVID_SELECT = 50 #MU
 N_CHILDREN = 100 #LAMBDA
 CXPB = 0.7 #crossover 
 MUTPB = 0.2 #mutation probablity
 max_size = 13 #of processor tree
+MAX_NODES = 300 #max size of phenotype in # of nodes
 
+## TEMP PARAMETERS
+'''
+PHENO_RUNS = 3
+N_GEN = 1 
+N_INDIVID_SELECT = 50 #MU
+N_CHILDREN = 100 #LAMBDA
+CXPB = 0.7 #crossover 
+MUTPB = 0.2 #mutation probablity
+max_size = 13 #of processor tree
+MAX_NODES = 300 #max size of phenotype in # of nodes
+'''
 
-toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS)
+toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS, max_nodes=MAX_NODES)
 toolbox.register("select", tools.selNSGA2)
 archive = []
 toolbox.decorate("select", log_fitness(archive) )
