@@ -2,7 +2,7 @@
 layout: default
 categories: main
 ---
-[//]: # What is this project?
+[//]: # What is this project? < Add to this
 [//]: # Exploration of Generative Growth, Evolution.
 
 # Why Am I Doing this?
@@ -15,6 +15,18 @@ Here are some things that are driving this project:
 * Interest in Evolution
 * Curious about selfish/altruistic dichotomy in life
 * Curious about computer programs that are creative and surprise me
+
+# Glossary of Common Terms
+
+My terminology can be a bit confusing because I am dealing with a toy world in the computer, which is mimicking the world of biology.
+
+#### From Google.
+
+* Phenotype - the set of observable characteristics of an individual resulting from the interaction of its genotype with the environment.
+* Genotype - the genetic constitution of an individual organism.
+ok so what is a gene?
+* Gene - a unit of heredity that is transferred from a parent to offspring and is held to determine some characteristic of the offspring.
+* colony - a community of animals or plants of one kind living close together or forming a physically connected structure.
 
 
 # How the Simulation Works
