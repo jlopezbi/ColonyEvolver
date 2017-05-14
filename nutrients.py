@@ -90,7 +90,6 @@ class Particle(object):
         '''
         trend_velocity = np.array(trend_direction)*magnitude
         displacement_vec = trend_velocity*(1.-randomness) + self._get_random_vector(magnitude)*randomness
-        displacement_vec = trend_velocity*(1.-randomness) + self._get_random_vector(magnitude)*randomness
         self.position += displacement_vec
 
 
