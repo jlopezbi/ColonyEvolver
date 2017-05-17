@@ -8,6 +8,7 @@ import vector_operations
 #import mesh_helpers
 import numpy_helpers
 #import metaball_helpers
+import scipy.spatial as sp
 import brain
 import mayavi.mlab as mlab
 imp.reload(vector_operations)
@@ -336,7 +337,17 @@ class BrainNode(Node):
         if np.isclose(z,new_offset,atol=.01).all() or np.isnan(new_offset).any():
             return None
         new_position = self.location + new_offset
+        if self._is_too_close_to_others(new_position, plant, thresh=.1):
+            return None
         return [BrainNode(parent=self,location=new_position,processor=self.processor)]
+
+    def _is_too_close_to_others(self, new_position, plant, thresh=.1):
+        colony_tree = sp.cKDTree(plant.get_matrix_form())
+        neighbors = colony_tree.query_ball_point( new_position, thresh)
+        if len(neighbors)>0:
+            return True
+        return False
+
 
 
 def _grow_cone_position(base_vector,input_vector,radius):
