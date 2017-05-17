@@ -18,7 +18,7 @@ imp.reload(collisions)
 
 
 class Colony(object):
-    """plant composed of nodes, a bounding box
+    """colony composed of nodes, a bounding box
     seed_nodes = iterable collection of obects derived from Node
     Note that seed_nodes must already have parent relations setup amongst themselves
     """
@@ -58,6 +58,11 @@ class Colony(object):
         for n in self.nodes:
             scores.append(n.health)
         return np.average(scores)
+        #return np.sum(scores)
+
+    ## Interesting Note: ##
+    # returning the average results in ~inverse relationship between health and # of nodes
+    # returning the sum results in ~negative linear relationship between health and # of nodes
 
     def collide_with(self,particle_sys):
         #self.collide_with_array_node_view(particle_sys)
@@ -189,6 +194,12 @@ class Colony(object):
         x, y, z, connections = self.collect_line_data()
         vb.make_lines(x, y, z, connections)
     
+    def save_image(self,info,img_name="colony.png"):
+        self.show_lines()
+        mlab.text(x=.01, y=.01, text=info, width=0.9)
+        mlab.savefig(img_name)
+        mlab.close(all=True)
+
     def collect_line_data(self):
         x = []
         y = []
