@@ -9,6 +9,8 @@ import vector_operations
 import math, random
 import uuid
 
+''' TODO: rename module to processor Tree or something like that'''
+
 
 '''
 inputs:(collision event) rel_sphere_pos, rel_parent_pos
@@ -108,7 +110,7 @@ def big_pset():
     '''non vec'''
     pset.addPrimitive(add_scalar, [float,float], float)
     pset.addPrimitive(if_greater_float, [float, float, float, float ], float)
-    #pset.addPrimitive(mult_scalar, [float, float], float)
+    pset.addPrimitive(mult_scalar, [float, float], float)
     pset.addTerminal(.5,float,'c1')
     pset.addEphemeralConstant(str(uuid.uuid1()),lambda: random.uniform(0, math.pi*2.),float)
     pset.addEphemeralConstant(str(uuid.uuid1()),lambda: random.uniform(-1,1),float)
