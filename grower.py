@@ -43,6 +43,19 @@ class Grower(object):
         particle_sys.trend_motion_magnitude = .01
         return cls(box,particle_sys)
 
+    @classmethod
+    def create_fixed_footprint_grower(cls):
+        width = 5.0
+        hw = width/2.0
+        box = world.BoxWorld( (-hw, -hw, 0.0), (hw, hw, 15.0) )
+        num_particles = 60
+        particle_sys = nutrients.ParticleSystem(num_particles,box)
+        particle_sys.randomness_of_motion = 0.9
+        particle_sys.radius = 1.0
+        particle_sys.trend_motion_magnitude = .01
+        return cls(box,particle_sys)
+    
+
     def _intialize_to_plant(self,plant):
         self.box.resize_to_fit(plant.bbox.bbox_lower,plant.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
         self.particles.set_initial_positions()
@@ -58,6 +71,18 @@ class Grower(object):
         func = brain.get_callable(genome,pset)
         seed = seed_stem(func) 
         return self.grow(seed,t_steps)
+
+    def grow_resize_top(self, seed, t_steps=100):
+        colony = plant.Colony(seed)
+        self.box.resize_top(colony.bbox.bbox_upper[2], padding=self.particles.radius*self.box.padding_multiplier)
+        self.particles.set_initial_positions()
+        for i in range(t_steps):
+            self.particles.move_particles()
+            self.particles.re_spawn_escaped_particles()
+            colony.collide_with(self.particles)
+            colony.update_time_for_all_nodes()
+            self.box.resize_top(colony.bbox.bbox_upper[2], padding=self.particles.radius*self.box.padding_multiplier)
+        return colony
 
     def grow(self,seed,t_steps=100):
         '''
