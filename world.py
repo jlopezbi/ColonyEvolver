@@ -174,6 +174,13 @@ class BoxWorld(object):
         above_min = np.greater(test_vec,self.lower_vertex).all()
         below_max = np.greater(self.upper_vertex,test_vec).all()
         return above_min and below_max
+    
+    def resize_top(self, new_z, padding=None):
+        '''
+        resize z dimension of world so that top of box is above
+        top of bbox_upper by padding
+        '''
+        self.upper_vertex[2] = new_z + padding
 
     def resize_to_fit(self,bbox_lower,bbox_upper,padding=None):
         '''
