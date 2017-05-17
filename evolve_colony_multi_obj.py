@@ -50,7 +50,7 @@ def make_phenotype(genome):
     return runner.grow(seed,t_steps=20)
 
 ''' fitness evaulator '''
-def evalPhenotype(genome, runs, max_nodes):
+def evalPhenotype(genome, runs, max_nodes ):
     '''
     Note: must return a tuple value!
     '''
@@ -62,10 +62,15 @@ def evalPhenotype(genome, runs, max_nodes):
         health = phenotype.get_health()
         num_elements = phenotype.number_of_elements()
         if num_elements > max_nodes:
-            return 0, 0 #ensure that bloated phenotypes are avoided; they slow down simulation
+            return -10000, -1000000 #ensure that bloated phenotypes are avoided; they slow down simulation
         health_scores.append(health)
         size_scores.append(num_elements)
-    return summarize_values(size_scores), summarize_values(health_scores)
+    return summarize_values(size_scores), summarize_values(health_scores) 
+
+def get_standard_deviation_both(a, b):
+    std_a = np.std(a)
+    std_b = np.std(b)
+    return std_a * std_b
 
 def summarize_values(values):
     return np.average(values)
@@ -129,28 +134,19 @@ def save_images_of_pop(pop):
 
 #############################################################
 ## PARAMETERS
-PHENO_RUNS = 7
-N_GEN = 20 
+PHENO_RUNS = 1
+N_GEN = 30
+print(N_GEN)
 N_INDIVID_SELECT = 50 #MU
 N_CHILDREN = 100 #LAMBDA
-CXPB = 0.7 #crossover 
-MUTPB = 0.2 #mutation probablity
+CXPB = 0.7 #crossover .7 originally 
+MUTPB = 0.2 #mutation probablity .2 originially
+#cloning proablity it 1 - CXPB - MUTPB is 0.1 in this case. I think it is too low!
 max_size = 13 #of processor tree
-MAX_NODES = 300 #max size of phenotype in # of nodes
+MAX_NODES = 400
 
-## TEMP PARAMETERS
-'''
-PHENO_RUNS = 3
-N_GEN = 1 
-N_INDIVID_SELECT = 50 #MU
-N_CHILDREN = 100 #LAMBDA
-CXPB = 0.7 #crossover 
-MUTPB = 0.2 #mutation probablity
-max_size = 13 #of processor tree
-MAX_NODES = 300 #max size of phenotype in # of nodes
-'''
 
-toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS, max_nodes=MAX_NODES)
+toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS, max_nodes=MAX_NODES ) 
 toolbox.register("select", tools.selNSGA2)
 archive = []
 toolbox.decorate("select", log_fitness(archive) )
@@ -177,7 +173,7 @@ class EvolutionStuff(object):
         self.pset = pset
 
 def main():
-    random.seed(5)
+    #random.seed(890)
 
     pop = toolbox.population(n=N_INDIVID_SELECT)
     history.update(pop)
