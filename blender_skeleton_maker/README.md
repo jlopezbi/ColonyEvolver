@@ -8,9 +8,11 @@ The numpy-saved file (.npy) must contain x,y,z point data and c connection data 
 - open a blender file, go to script mode. (or open a text editor window)
 - load the make_skeleton.py file
 - in the console type
-``` from make_skeleton import file_to_skeleton ```
-- now in the console type 
+``` from make_skeleton import * ```
+- now in the console type
 ``` file_to_skeleton( ```
+ or 
+``` directory_to_skeletons( ``` 
 - Drag the .npy file into the console.  The path to the file will appear. Close it of with a parenthesis. Should looks something like:
 ``` file_to_skeleton("/Users/josh/Projects/ColonyEvolver_above/ColonyEvolver/line_data.npy") ```
 - press enter. A new mesh object will appear called Skeleton!
