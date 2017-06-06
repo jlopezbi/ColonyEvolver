@@ -28,6 +28,52 @@ def load(filename):
     #not tested yet! 
     pickle.load(open(filename, 'rb'))
 
+class EvenNutrientsGrower(object):
+    '''
+    Designed to give amount of nutrients proportional to the
+    area of the footprint of the world.
+    As the footprint increases, more particles are added to 
+    maintian the particle-to-footprint_area ratio.
+    ASSUMPTION:
+        world always increaeses footprint area, never decreases
+        (will never remove particles after they have been added)
+    Expect a ratio of num_particles:footprint_area that saw-tooths below some 
+    target ratio over the course of the sim. That ratio is set in nutrients 
+    (get_n_particles_per_area) 
+    '''
+
+    def __init__(self):
+        f = .1 #box will get resized to seed
+        box = world.BoxWorld((-f,-f,0.0),(f,f,f))
+        self.start_particles = 2
+        particle_sys = nutrients.ParticleSystem(box)
+        particle_sys.randomness_of_motion = 0.9
+        particle_sys.radius = 1.0
+        particle_sys.trend_motion_magnitude = .01
+        particle_sys.finalize()
+        self.box = box
+        self.particles = particle_sys
+
+    def resize_box_to_colony(self, colony):
+        colony_lower = colony.bbox.bbox_lower
+        colony_upper = colony.bbox.bbox_upper
+        extra_space = self.particles.radius*self.box.padding_multiplier
+        self.box.resize_to_fit(colony_lower, colony_upper, padding=extra_space)
+        return self.box.get_footprint_area()
+
+    def grow(self, seed, t_steps=20):
+        colony = plant.Colony(seed)
+        self.resize_box_to_colony(colony)
+        self.particles.add_n_particles_at_spawn_loc(self.start_particles)
+        for i in range(t_steps):
+            self.particles.move_particles()
+            self.particles.re_spawn_escaped_particles()
+            colony.collide_with(self.particles)
+            colony.update_time_for_all_nodes()
+            self.resize_box_to_colony(colony)
+            self.particles.add_missing_particles_if_required()
+        return colony
+
 class Grower(object):
     def __init__(self,box,particles):
         self.box = box
@@ -37,10 +83,11 @@ class Grower(object):
     def create_default_grower(cls):
         box = world.BoxWorld((-1.0,-1.0,0.0),(1.0,1.0,1.0))
         num_particles = 60
-        particle_sys = nutrients.ParticleSystem(num_particles,box)
+        particle_sys = nutrients.ParticleSystem(box)
         particle_sys.randomness_of_motion = 0.9
         particle_sys.radius = 1.0
         particle_sys.trend_motion_magnitude = .01
+        particle_sys.add_n_particles_at_spawn_loc(num_particles)
         return cls(box,particle_sys)
 
     @classmethod
@@ -49,10 +96,11 @@ class Grower(object):
         hw = width/2.0
         box = world.BoxWorld( (-hw, -hw, 0.0), (hw, hw, 15.0) )
         num_particles = 60
-        particle_sys = nutrients.ParticleSystem(num_particles,box)
+        particle_sys = nutrients.ParticleSystem(box)
         particle_sys.randomness_of_motion = 0.9
         particle_sys.radius = 1.0
         particle_sys.trend_motion_magnitude = .01
+        particle_sys.add_n_particles_at_spawn_loc(num_particles)
         return cls(box,particle_sys)
     
 

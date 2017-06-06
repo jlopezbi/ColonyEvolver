@@ -12,6 +12,11 @@ class BoxWorld(object):
 
 
     def __init__(self,front_vertex,back_vertex):
+        '''
+        front_vertex and back_vertex are stricly the negative most corner and
+        the positive most corner. This assumption is critical for most boxWorld 
+        operations.
+        '''
         self.lower_vertex = np.array(front_vertex)
         self.upper_vertex = np.array(back_vertex)
         greater_or_equal = np.greater(self.upper_vertex,self.lower_vertex).all() or np.equal(self.upper_vertex,self.lower_vertex).all()
@@ -182,18 +187,22 @@ class BoxWorld(object):
         '''
         self.upper_vertex[2] = new_z + padding
 
-    def resize_to_fit(self,bbox_lower,bbox_upper,padding=None):
+    def resize_to_fit(self,bbox_lower,bbox_upper,padding=0.0):
         '''
         resize world so that it offsets the box defined by
         bbox_lower and _upper by padding amount
         In all directions except negative z
         '''
-        if not padding:
-            padding = self.padding
         lower_offset = np.array((padding,padding,0.))
         self.lower_vertex = bbox_lower - lower_offset
         upper_offset = np.array([padding]*3)
         self.upper_vertex = bbox_upper + upper_offset
+
+    def get_footprint_area(self):
+        ''' gets area of bottom face of box '''
+        x = self.dimension_along(0)
+        y = self.dimension_along(1)
+        return x * y
 
 
 
