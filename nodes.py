@@ -62,7 +62,7 @@ class Node(object):
         '''
         function called by simulation to let the node know that time has passed
         '''
-        self.health -=2
+        self.health -=3
 
     def _specialized_respond_to_collision(self,plant,position,radius):
         '''
