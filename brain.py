@@ -112,6 +112,7 @@ def big_pset():
     pset.addPrimitive(if_greater_float, [float, float, float, float ], float)
     pset.addPrimitive(mult_scalar, [float, float], float)
     pset.addTerminal(.5,float,'c1')
+    pset.addTerminal(np.array([0.,0.,-1.0]),vec,'downVec')
     pset.addEphemeralConstant(str(uuid.uuid1()),lambda: random.uniform(0, math.pi*2.),float)
     pset.addEphemeralConstant(str(uuid.uuid1()),lambda: random.uniform(-1,1),float)
     pset.renameArguments(ARG0="x")
