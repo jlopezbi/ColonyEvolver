@@ -219,10 +219,10 @@ class Colony(object):
         connections = np.array(connections)
         return x, y, z, connections
 
-    def save_line_data(self):
+    def save_line_data(self, file_name="line_data.npy"):
         x,y,z,c = self.collect_line_data()
         data = {'x':x, 'y':y, 'z':z, 'connections':c}
-        np.save('line_data.npy',data)
+        np.save(file_name, data)
 
     def translate(self,vector):
         '''
