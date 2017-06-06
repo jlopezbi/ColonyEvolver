@@ -9,16 +9,24 @@ class ParticleSystem(object):
     perhaps this is the main simulation
     '''
 
-    def __init__(self, num_particles, world):
+    def __init__(self, world):
         self.world = world
         self.randomness_of_motion = 0.0  # [0, 1.0]
         #NOTE: probs should make magnitude of trend motion some multiple of particle radius
         self.trend_speed = 0.3
         self.trend_direction = np.array((0.0,0.0,-1.0))
         self.radius = .6
-        self.num_particles = num_particles
         self.particles = []
-        self.set_initial_positions()
+        #self.set_initial_positions()
+        #self.add_n_particles_at_spawn_loc(self.num_particles)
+        self.n_particles_per_area = None
+        self.MAX_PARTICLES= 80
+
+    def finalize(self):
+        '''
+        allows setting parameters and then 'baking' them into the class
+        '''
+        self.n_particles_per_area = self.get_n_particles_per_area(self.radius)
 
     def get_particle(self, idx):
         return self.particles[idx]
@@ -29,11 +37,21 @@ class ParticleSystem(object):
     def get_particle_vectors(self):
         return [particle.position for particle in self.particles]
 
+    def add_n_particles_at_spawn_loc(self, n=None, radius=None):
+        if radius == None:
+            radius = self.radius
+        for i in range(n):
+            position = self.world.get_a_spawn_location()
+            self.particles.append( Particle(position, radius) )
+
+    def num_particles(self):
+        return len(self.particles)
+
     def set_initial_positions(self):
         #perhaps adding all the particles to the top plane and the running
         #the simulation causes some odd stuff to happen right at the beginning
         # i.e. a ton of particles colliding in a small time frame. How to space it out?
-        for i in range(self.num_particles):
+        for i in range(self.num_particles()):
             position = self.world.get_a_spawn_location()
             self.particles.append(Particle(position, self.radius ))
 
@@ -48,6 +66,29 @@ class ParticleSystem(object):
         '''
         for p in self.particles:
             p.move(self.randomness_of_motion)
+
+    def add_missing_particles_if_required(self):
+        area = self.world.get_footprint_area()
+        num_missing = self.calculate_missing_particles_per_area(area)
+        if num_missing > 0 and self.num_particles() < self.MAX_PARTICLES:
+            self.add_n_particles_at_spawn_loc( num_missing )
+        #FOR NOW: colonies cannot get smaller, so there is no need to worry about
+        # removing particles
+        #More than MAX_PARTICLES could result in very slow computation (or memory, something like that)
+
+    def calculate_missing_particles_per_area(self, area):
+        ideal_n = math.trunc(area * self.n_particles_per_area)
+        missing = ideal_n - self.num_particles()
+        return missing
+
+    def get_n_particles_per_area(self,radius):
+        '''
+        This is basically saying "pretend the particles are cubes,
+        so that the # of particles is determined by how many cubes can
+        fit in an area."
+        1 particle for every (radius^2) area
+        '''
+        return 1.0 / radius**2
 
     def re_spawn_escaped_particles(self):
         #NOTE: working here, just need to try out running alot of particles
