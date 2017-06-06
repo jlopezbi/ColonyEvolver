@@ -1,6 +1,21 @@
 import bpy
 import bmesh
 import numpy as np
+import os
+
+def directory_to_skeletons(directory):
+    '''
+    To Use: Drag and drop folder containing the line data (as .npy files) to get the input 'directory' string.
+    MUST CONTAIN ONLY .npy files
+    - makes all skeletons in same place
+    - watch out for .DS_store
+    '''
+    file_names = os.listdir(directory)
+    for item in file_names:
+        path = os.path.join(directory, item)
+        obj = file_to_skeleton(path)
+
+
 
 def file_to_skeleton(file_name):
     '''TIP: drag and drop file from finder into blender console to get file_name
@@ -10,10 +25,16 @@ def file_to_skeleton(file_name):
     the x, y, z, and connections fields'''
     raw = load(file_name)
     x,y,z,c = convert_data(raw)
-    make_mesh_skeleton(x,y,z,c)
+    obj = make_mesh_skeleton(x,y,z,c)
+    return obj
+    #obj.location = b
 
 def get_full_path(file_name):
     pass
+
+def get_file_names(directory):
+    return os.listdir(directory)
+
 
 def load(file_name='line_data.npy'):
     data = np.load(file_name,encoding='bytes')
@@ -44,7 +65,7 @@ def make_mesh_skeleton(x,y,z,connections):
             v1 = grower.bm.verts[idx1]
             v2 = grower.bm.verts[idx2]
             grower.add_edge(v1,v2)
-    grower.finalize()
+    return grower.finalize()
 
 class MeshSkeletonGrower(object):
     '''
@@ -86,4 +107,8 @@ class MeshSkeletonGrower(object):
         self.obj = bpy.data.objects.new(self.obj_name, self.me)
         scene.objects.link(self.obj)
         return self.obj
+
+if __name__=="__main__":
+    pass
+
 
