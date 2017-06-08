@@ -15,6 +15,15 @@ def log_fitness(big_list):
         return wrapper 
     return decorator
 
+def sort_pop_by_health(pop):
+    return sorted(pop, key=lambda x: x.fitness.values[1], reverse=True )
+
+def show_ranked_by_health(rank, pop):
+    ranked = sort_pop_by_health(pop)
+    g = ranked[rank]
+    p = make_phenotype(g)
+    p.show()
+
 def make_folder(name):
     directory = os.path.join(os.getcwd(), name)
     try:
@@ -26,6 +35,7 @@ def make_folder(name):
 def save_images_of_pop(pop,directory):
     '''
     assumes pop is already ordered logically
+    and pop has fitness.values
     '''
     for i,genome in enumerate(pop):
         p = make_phenotype(genome)
@@ -59,3 +69,20 @@ def convert_imgs_to_grid(directory, n_x=8, n_y=10):
             idx +=1
     file_name = 'grid_img.png'
     new_im.save(file_name)
+
+def make_grid_img_of_phenotypes(pop):
+    directory = make_folder('saved_pop_imgs')
+    save_images_of_pop(pop,directory)
+    n_img = len(pop)
+    def biggest_first_number_factor_pair(val):
+        pairs = [(i, val / i) for i in range(1, int(val**0.5)+1) if val % i == 0]
+        return pairs[-1]
+    n_x, n_y = biggest_first_number_factor_pair(n_img)
+    convert_imgs_to_grid(directory, n_x, n_y)
+
+def save_skeleton_data(ordered_pop):
+    directory = make_folder('saved_skeleton_data')
+    for i,genome in enumerate(ordered_pop):
+        file_name = os.path.join(directory,"{:02d}_skeleton.npy".format(i))
+        p = make_phenotype(genome)
+        p.save_line_data(file_name)
