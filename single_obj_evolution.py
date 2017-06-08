@@ -44,17 +44,19 @@ toolbox.register("population", tools.initRepeat, list, toolbox.individual)
 toolbox.register("compile", gp.compile, pset=pset)
 
 def make_phenotype(genome):
-    runner = grower.Grower.create_default_grower()
+    random.seed(81) #deterministic
+    runner = grower.FixedFootprintGrower()
     func = toolbox.compile(expr=genome)
     seed = grower.seed_stem(func)
-    return runner.grow(seed,t_steps=20)
+    phenotype = runner.grow(seed,t_steps=20)
+    random.seed()
+    return phenotype
 
 ''' fitness evaulator '''
 def evalPhenotype(genome,runs):
     '''
     Note: must return a tuple value!
     '''
-    target_number_nodes = 13.0
     fitness_vals = []
     #start_time = time.time()
     for run in range(runs):

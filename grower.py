@@ -74,6 +74,32 @@ class EvenNutrientsGrower(object):
             self.particles.add_missing_particles_if_required()
         return colony
 
+class FixedFootprintGrower(object):
+    def __init__(self, base_width=5):
+        hw = base_width/2.0
+        box = world.BoxWorld( (-hw, -hw, 0.0), (hw, hw, 15.0) )
+        num_particles = 60
+        particle_sys = nutrients.ParticleSystem(box)
+        particle_sys.randomness_of_motion = 0.9
+        particle_sys.radius = 1.0
+        particle_sys.trend_motion_magnitude = .01
+        particle_sys.add_n_particles_at_spawn_loc(num_particles)
+        self.box = box
+        self.particles = particle_sys
+
+    def grow(self, seed, t_steps=20):
+        '''resized top of box world only '''
+        colony = plant.Colony(seed)
+        self.box.resize_top(colony.bbox.bbox_upper[2], padding=self.particles.radius*self.box.padding_multiplier)
+        self.particles.set_initial_positions()
+        for i in range(t_steps):
+            self.particles.move_particles()
+            self.particles.re_spawn_escaped_particles()
+            colony.collide_with(self.particles)
+            colony.update_time_for_all_nodes()
+            self.box.resize_top(colony.bbox.bbox_upper[2], padding=self.particles.radius*self.box.padding_multiplier)
+        return colony
+
 class Grower(object):
     def __init__(self,box,particles):
         self.box = box
