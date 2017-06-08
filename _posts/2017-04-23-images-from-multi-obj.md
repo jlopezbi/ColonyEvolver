@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  "Shapes from the first multi-objective run"
 date:   2017-04-23 
 categories: main

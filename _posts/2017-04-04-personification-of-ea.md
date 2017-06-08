@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: "my snap-personification of an evolutionary algorithm"
 categories: main
 ---

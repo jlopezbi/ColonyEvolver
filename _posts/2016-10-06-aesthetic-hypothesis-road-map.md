@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: "An Aesthetic Hypothesis and a Road-Map" 
 date: 2016-10-06
 categories: main

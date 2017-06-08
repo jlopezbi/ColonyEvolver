@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  "Multi Objective First Run"
 date:   2017-04-21 
 categories: main

@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title: "Population Needs to be Big for Pareto-Front to Move"
 categories: main
 ---

@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 categories: main
 title: Things Learned while Racing to Make a Sculpture
 ---

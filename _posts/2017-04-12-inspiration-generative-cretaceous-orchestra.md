@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  "Inspiration: Generative Cretaceous Orchestra"
 date:   2017-04-12
 categories: main

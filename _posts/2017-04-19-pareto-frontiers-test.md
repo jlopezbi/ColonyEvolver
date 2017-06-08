@@ -1,5 +1,5 @@
 ---
-layout: default
+layout: post
 title:  "Multi Objective Evolution"
 date:   2017-04-19 
 categories: main
