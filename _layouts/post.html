@@ -1,7 +1,11 @@
 ---
 layout: default
 ---
-<h2>{{ page.title }}</h2>
-<p class="meta">{{ page.date | date_to_string }}</p>
+<h1>{{ page.title }}</h1>
+<p class="meta">
+<span class="date">{{ page.date | date: '%B %d, %Y' }}</span>
+</p>
 
 {{ content }}
+
+<a href="{{ site.url }}{{ site.baseurl }}/" class="back">Back to All Posts</a>
