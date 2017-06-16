@@ -1,12 +1,12 @@
 import imp
 import cPickle
 
-import plant
+import colony_class
 import nodes
 import brain
 import nutrients
 import world
-imp.reload(plant)
+imp.reload( colony_class )
 imp.reload(nodes)
 imp.reload(brain)
 imp.reload(nutrients)
@@ -62,7 +62,7 @@ class EvenNutrientsGrower(object):
         return self.box.get_footprint_area()
 
     def grow(self, seed, t_steps=20):
-        colony = plant.Colony(seed)
+        colony = colony_class.Colony(seed)
         self.resize_box_to_colony(colony)
         self.particles.add_n_particles_at_spawn_loc(self.start_particles)
         for i in range(t_steps):
@@ -89,7 +89,7 @@ class FixedFootprintGrower(object):
 
     def grow(self, seed, t_steps=20):
         '''resized top of box world only '''
-        colony = plant.Colony(seed)
+        colony = colony_class.Colony(seed)
         self.box.resize_top(colony.bbox.bbox_upper[2], padding=self.particles.radius*self.box.padding_multiplier)
         self.particles.set_initial_positions()
         for i in range(t_steps):
@@ -130,8 +130,8 @@ class Grower(object):
         return cls(box,particle_sys)
     
 
-    def _intialize_to_plant(self,plant):
-        self.box.resize_to_fit(plant.bbox.bbox_lower,plant.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
+    def _intialize_to_plant(self, colony):
+        self.box.resize_to_fit( colony.bbox.bbox_lower, colony.bbox.bbox_upper,padding=self.particles.radius*self.box.padding_multiplier)
         self.particles.set_initial_positions()
 
     def report_growth(self,weed):
@@ -147,7 +147,7 @@ class Grower(object):
         return self.grow(seed,t_steps)
 
     def grow_resize_top(self, seed, t_steps=100):
-        colony = plant.Colony(seed)
+        colony = colony_class.Colony(seed)
         self.box.resize_top(colony.bbox.bbox_upper[2], padding=self.particles.radius*self.box.padding_multiplier)
         self.particles.set_initial_positions()
         for i in range(t_steps):
@@ -163,7 +163,7 @@ class Grower(object):
         seed is an iterable of node instances, who already have connections between
         them
         '''
-        colony = plant.Colony(seed)
+        colony = colony_class.Colony(seed)
         self._intialize_to_plant(colony)
         for i in range(t_steps):
             self.particles.move_particles()
@@ -176,7 +176,7 @@ class Grower(object):
 
 def defualt_plant():
     n0 = nodes.Node(location=(0.0, 0.0, 0.0))
-    p = plant.Colony([n0])
+    p = colony.Colony([n0])
     n1 = nodes.Node(parent=n0, location=(0.0, 0.0, 5.0))
     p.append_node(n1,n0)
     n2 = nodes.Node(parent=n0, location=(4.0, 0.0, 5.0))
