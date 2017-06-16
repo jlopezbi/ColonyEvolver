@@ -53,39 +53,29 @@ def make_phenotype(genome):
     return phenotype
 
 ''' fitness evaulator '''
-def evalPhenotype(genome,runs):
+def evalPhenotype(genome):
     '''
     Note: must return a tuple value!
     '''
-    fitness_vals = []
-    #start_time = time.time()
-    for run in range(runs):
-        phenotype = make_phenotype(genome)
-        health = phenotype.get_health()
-        size = phenotype.number_of_elements()
-        combined_score = health + size #naively do not weighted sum
-        fitness_vals.append(health)
-        #print(".", sep='', end='')
-    #end_time = time.time()
-    #elapsed = end_time - start_time
-    #print("t: "+str(elapsed))
-    return summarize_values(fitness_vals)
+    phenotype = make_phenotype(genome)
+    health_scores = phenotype.get_health_scores()
+    return np.sum(health_scores),
 
-def summarize_values(values):
-    return np.average(values),
+
 #############################################################
 ## PARAMETERS
-POP_SIZE = 40
-PHENO_RUNS = 4
-N_GEN = 10
-max_size = 13 #of processor tree
+POP_SIZE = 100
+print("pop: {}".format(POP_SIZE))
+N_GEN = 50
+print("ngen: {}".format(N_GEN))
+max_size = 17 #of processor tree
 prob_mate = 0.5
 prob_mutate = 0.1
 
-toolbox.register("evaluate", evalPhenotype, runs=PHENO_RUNS)
+toolbox.register("evaluate", evalPhenotype) 
 toolbox.register("select", tools.selTournament, tournsize=3)
 toolbox.register("mate", gp.cxOnePoint)
-toolbox.register("expr_mut", gp.genFull, min_=1, max_=7)
+toolbox.register("expr_mut", gp.genHalfAndHalf, min_=1, max_=7)
 toolbox.register("mutate", gp.mutUniform, expr=toolbox.expr_mut, pset=pset)
 
 toolbox.decorate("mate", gp.staticLimit(key=operator.attrgetter("height"), max_value=max_size))
@@ -106,8 +96,55 @@ class EvolutionStuff(object):
         self.toolbox = toolbox
         self.pset = pset
 
+def ea_simple(population, toolbox, cxpb, mutpb, ngen, stats=None, hallofffame=None, verbose=__debug__):
+    logbook = tools.Logbook()
+    logbook.header = ['gen', 'nevals'] + (stats.fields if stats else [])
+
+    # Evaluate the individuals with an invalid fitness
+    invalid_ind = [ind for ind in population if not ind.fitness.valid]
+    fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+    for ind, fit in zip(invalid_ind, fitnesses):
+        ind.fitness.values = fit
+
+    if halloffame is not None:
+        halloffame.update(population)
+
+    record = stats.compile(population) if stats else {}
+    logbook.record(gen=0, nevals=len(invalid_ind), **record)
+    if verbose:
+        print(logbook.stream)
+
+    # Begin the generational process
+    for gen in range(1, ngen + 1):
+        # Select the next generation individuals
+        offspring = toolbox.select(population, len(population))
+
+        # Vary the pool of individuals
+        offspring = varAnd(offspring, toolbox, cxpb, mutpb)
+
+        # Evaluate the individuals with an invalid fitness
+        invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+        fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
+        for ind, fit in zip(invalid_ind, fitnesses):
+            ind.fitness.values = fit
+
+        # Update the hall of fame with the generated individuals
+        if halloffame is not None:
+            halloffame.update(offspring)
+
+        # Replace the current population by the offspring
+        population[:] = offspring
+
+        # Append the current generation statistics to the logbook
+        record = stats.compile(population) if stats else {}
+        logbook.record(gen=gen, nevals=len(invalid_ind), **record)
+        if verbose:
+            print( logbook.stream)
+
+    return population, logbook
+
 def main():
-    random.seed(5)
+    random.seed()
 
     pop = toolbox.population(n=POP_SIZE)
     history.update(pop)
@@ -116,12 +153,12 @@ def main():
     stats_fit = tools.Statistics(lambda ind: ind.fitness.values)
     stats_size = tools.Statistics(len)
     mstats = tools.MultiStatistics(fitness=stats_fit,size=stats_size)
-    mstats.register("avg", np.mean)
-    mstats.register("std", np.std)
-    mstats.register("min", np.min)
-    mstats.register("max", np.max)
+    stats_fit.register("avg", np.mean)
+    stats_fit.register("std", np.std)
+    stats_fit.register("min", np.min)
+    stats_fit.register("max", np.max)
 
-    pop, log = algorithms.eaSimple(pop, toolbox, prob_mate, prob_mutate, N_GEN, stats=mstats,
+    pop, log = algorithms.eaSimple(pop, toolbox, prob_mate, prob_mutate, N_GEN, stats=stats_fit,
                                    halloffame=hof, verbose=True)
     # print log
     
