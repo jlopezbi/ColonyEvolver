@@ -30,6 +30,8 @@ ok so what is a gene?
 
 
 # How the Simulation Works
+This [blog post]({{ site.baseurl }}{% post_url 2016-12-15-How-I-am-Using-Genetic-Programing-to-grow-Shapes %}) describes the current state of how stuff works.
+
 Spherical particles jitter around in a box. They move in a random 3d-walk, biased donwards. The biased random walk simulates diffusing particles in water, slighly effected by gravity. These are the 'nutrients' for the colony that grows. If a particle goes outside the box, it is moved back to the top plane of the box. 
 
 A 'seed' colony is placed in the box.  The seed colony is some intial collection of nodes, cNode for colony node. Each cNode has a location in 3d space, and stores a pointer to its parent node. This is naturally visualized as a line segment connecting the two cNodes. In each step of the simulation the particles move some small amount, and then all of the collisions between the particles and the colony nodes are computed. If a particle collides with some cNodes, one of them is chosen (at this point it is arbitrary which one) to recieve the message that it was collided. The cNode just 'ate!' It can do whatever it likes with this information. It can spawn a child node, save the data, send a message to another cNode, etc. This is where things get creative!
